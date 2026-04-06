@@ -11,6 +11,9 @@ type
   TKMRunnerCommon = class;
   TKMRunnerClass = class of TKMRunnerCommon;
 
+  TKMTestResult = (trSuccess, trFailed, trException);
+  ETestFailed = class(Exception);
+
   TKMRunResults = record
     ChartsCount: Integer; //How many charts return
     ValueCount: Integer; //How many values
@@ -19,6 +22,8 @@ type
     TimesCount: Integer;
     TimeMin, TimeMax: Integer;
     Times: array {Run} of array {Tick} of Cardinal;
+    TestResults: array {Run} of TKMTestResult;
+    TestMessages: array {Run} of string;
   end;
 
   TKMRunnerCommon = class
@@ -51,6 +56,9 @@ type
     OnProgress5: TUnicodeStringEvent;
     constructor Create(aRenderTarget: TKMRenderControl; {aOnPause, }aOnStop: TBooleanFuncSimple); reintroduce;
     function Run(aCount: Integer): TKMRunResults;
+    procedure AssertTrue(aCondition: Boolean; const aMessage: string);
+    procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
+    procedure Fail(const aMessage: string);
   end;
 
 procedure RegisterRunner(aRunner: TKMRunnerClass);
@@ -94,6 +102,8 @@ begin
   fResults.ChartsCount := aCount;
   SetLength(fResults.Value, fResults.ChartsCount, fResults.ValueCount);
   SetLength(fResults.Times, fResults.ChartsCount, fResults.TimesCount);
+  SetLength(fResults.TestResults, fResults.ChartsCount);
+  SetLength(fResults.TestMessages, fResults.ChartsCount);
 
   for I := 0 to aCount - 1 do
   begin
@@ -101,13 +111,46 @@ begin
       OnProgress(Format('%d', [I]));
 
     fRun := I;
-    Execute(I);
+    fResults.TestResults[I] := trSuccess;
+    fResults.TestMessages[I] := '';
+
+    try
+      Execute(I);
+    except
+      on E: ETestFailed do
+      begin
+        fResults.TestResults[I] := trFailed;
+        fResults.TestMessages[I] := E.Message;
+      end;
+      on E: Exception do
+      begin
+        fResults.TestResults[I] := trException;
+        fResults.TestMessages[I] := E.Message;
+      end;
+    end;
   end;
 
   TearDown;
 
   ProcessRunResults;
   Result := fResults;
+end;
+
+procedure TKMRunnerCommon.AssertTrue(aCondition: Boolean; const aMessage: string);
+begin
+  if not aCondition then
+    raise ETestFailed.Create(aMessage);
+end;
+
+procedure TKMRunnerCommon.AssertEquals(aExpected, aActual: Integer; const aMessage: string);
+begin
+  if aExpected <> aActual then
+    raise ETestFailed.Create(Format('%s (Expected: %d, Actual: %d)', [aMessage, aExpected, aActual]));
+end;
+
+procedure TKMRunnerCommon.Fail(const aMessage: string);
+begin
+  raise ETestFailed.Create(aMessage);
 end;
 
 
@@ -153,9 +196,7 @@ begin
   SKIP_SOUND := True;
   SKIP_LOADING_CURSOR := True;
   SKIP_SETTINGS_SAVE := True;
-  //ExeDir := ExtractFilePath(ParamStr(0)) + '..\..\';
   ExeDir := ExtractFilePath(ExcludeTrailingPathDelimiter(ExtractFilePath(ExcludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))))));
-  //gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'temp.log');
 
   fResults.TimesCount := Duration*60*10;
 
@@ -183,31 +224,10 @@ procedure TKMRunnerCommon.TearDown;
 begin
   gGameApp.StopGame(grSilent);
   FreeAndNil(gGameApp);
-  FreeAndNil(gLog);
+
   if Assigned(OnProgress) then
     OnProgress('Done');
 end;
-
-
-//procedure TKMRunnerCommon.FlashingStart;
-//{$IFNDEF FPC}
-//var
-//  flashInfo: TFlashWInfo;
-//{$ENDIF}
-//begin
-//  {$IFNDEF FPC}
-//  if (GetForeGroundWindow <> gMain.FormMain.Handle) then
-//  begin
-//    flashInfo.cbSize := 20;
-//    flashInfo.hwnd := Application.Handle;
-//    flashInfo.dwflags := FLASHW_ALL;
-//    flashInfo.ucount := 5;
-//    flashInfo.dwtimeout := 0;
-//    fFlashing := True;
-//    FlashWindowEx(flashInfo);
-//  end
-//  {$ENDIF}
-//end;
 
 
 procedure TKMRunnerCommon.SimulateGame(aStartTick: Integer = 0; aEndTick: Integer = -1);
@@ -248,5 +268,12 @@ begin
   end;
 end;
 
+
+initialization
+  if gLog = nil then
+    gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Testing_GameTests.log');
+
+finalization
+  FreeAndNil(gLog);
 
 end.

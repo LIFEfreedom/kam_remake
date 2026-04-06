@@ -25,6 +25,8 @@ type
     Label3: TLabel;
     TabSheet4: TTabSheet;
     Memo1: TMemo;
+    TabSheet5: TTabSheet;
+    moResults: TMemo;
     Render: TTabSheet;
     Panel1: TPanel;
     chkRender: TCheckBox;
@@ -40,10 +42,12 @@ type
     Label11: TLabel;
     Label12: TLabel;
     rgAIType: TRadioGroup;
+    btnRunAll: TButton;
     btnStop: TButton;
     btnPause: TButton;
     procedure FormCreate(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
+    procedure btnRunAllClick(Sender: TObject);
     procedure PageControl1Change(Sender: TObject);
     procedure TabSheetResize(Sender: TObject);
     procedure TrackBar1Change(Sender: TObject);
@@ -125,6 +129,7 @@ begin
   begin
     ListBox1.ItemIndex := 0;
     btnRun.Enabled := True;
+    btnRunAll.Enabled := True;
     btnStop.Enabled := False;
     btnPause.Enabled := False;
   end;
@@ -170,6 +175,7 @@ begin
   ID := ListBox1.ItemIndex;
   if ID = -1 then Exit;
   btnRun.Enabled := True;
+  btnRunAll.Enabled := True;
   btnStop.Enabled := False;
   btnPause.Enabled := False;
 end;
@@ -271,9 +277,89 @@ begin
     PageControl1Change(nil);
   finally
     btnRun.Enabled := True;
+    btnRunAll.Enabled := True;
     btnStop.Enabled := False;
     btnPause.Enabled := False;
   end;
+end;
+
+
+procedure TForm2.btnRunAllClick(Sender: TObject);
+var
+  T: Cardinal;
+  ID, Count: Integer;
+  Testing_GameTestsClass: TKMRunnerClass;
+  Testing_GameTests: TKMRunnerCommon;
+  I: Integer;
+  resStr: string;
+begin
+  Count := seCycles.Value;
+  if Count <= 0 then Exit;
+
+  fStopped := False;
+
+  moResults.Clear;
+  PageControl1.ActivePage := TabSheet5;
+
+  btnRun.Enabled := False;
+  btnRunAll.Enabled := False;
+  btnStop.Enabled := True;
+  btnPause.Enabled := False; //Always disabled for now
+
+  for ID := 0 to High(RunnerList) do
+  begin
+    if fStopped then Break;
+
+    Testing_GameTestsClass := RunnerList[ID];
+
+    if chkRender.Checked then
+      Testing_GameTests := Testing_GameTestsClass.Create(RenderArea, {IsPaused, }IsStopped)
+    else
+      Testing_GameTests := Testing_GameTestsClass.Create(nil, {IsPaused, }IsStopped);
+
+    Testing_GameTests.OnProgress := Testing_GameTestsProgress;
+    Testing_GameTests.OnProgress_Left := Testing_GameTestsProgress_Left;
+    Testing_GameTests.OnProgress_Left2 := Testing_GameTestsProgress_Left2;
+    Testing_GameTests.OnProgress_Left3 := Testing_GameTestsProgress_Left3;
+    Testing_GameTests.OnProgress2 := Testing_GameTestsProgress2;
+    Testing_GameTests.OnProgress3 := Testing_GameTestsProgress3;
+    Testing_GameTests.OnProgress4 := Testing_GameTestsProgress4;
+    Testing_GameTests.OnProgress5 := Testing_GameTestsProgress5;
+    try
+      T := GetTickCount;
+      Testing_GameTests.Duration := seDuration.Value;
+      Testing_GameTests.Seed := seSeed.Value;
+      if rgAIType.ItemIndex = 0 then
+        Testing_GameTests.AIType := aitClassic
+      else
+        Testing_GameTests.AIType := aitAdvanced;
+
+      fResults := Testing_GameTests.Run(Count);
+      
+      for I := 0 to Count - 1 do
+      begin
+        case fResults.TestResults[I] of
+          trSuccess: resStr := 'SUCCESS';
+          trFailed: resStr := 'FAILED: ' + fResults.TestMessages[I];
+          trException: resStr := 'EXCEPTION: ' + fResults.TestMessages[I];
+        end;
+
+        if Count > 1 then
+          moResults.Lines.Append(Format('%s (Run %d): %s (%d ms)', [Testing_GameTestsClass.ClassName, I+1, resStr, GetTickCount - T]))
+        else
+          moResults.Lines.Append(Format('%s: %s (%d ms)', [Testing_GameTestsClass.ClassName, resStr, GetTickCount - T]));
+      end;
+    finally
+      Testing_GameTests.Free;
+    end;
+    
+    Application.ProcessMessages;
+  end;
+
+  btnRun.Enabled := True;
+  btnRunAll.Enabled := True;
+  btnStop.Enabled := False;
+  btnPause.Enabled := False;
 end;
 
 

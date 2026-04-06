@@ -109,6 +109,16 @@ object Form2: TForm2
     TabOrder = 0
     OnClick = btnRunClick
   end
+  object btnRunAll: TButton
+    Left = 103
+    Top = 456
+    Width = 89
+    Height = 38
+    Caption = 'Run All'
+    Enabled = False
+    TabOrder = 10
+    OnClick = btnRunAllClick
+  end
   object seCycles: TSpinEdit
     Left = 8
     Top = 144
@@ -209,6 +219,20 @@ object Form2: TForm2
         Width = 873
         Height = 597
         Align = alClient
+        TabOrder = 0
+      end
+    end
+    object TabSheet5: TTabSheet
+      Caption = 'Test Summary'
+      ImageIndex = 5
+      object moResults: TMemo
+        Left = 0
+        Top = 0
+        Width = 873
+        Height = 597
+        Align = alClient
+        Font.Name = 'Courier New'
+        ScrollBars = ssBoth
         TabOrder = 0
       end
     end

@@ -115,6 +115,8 @@ begin
       Break;
   until (L.Count = 0);
 
+  AssertTrue(fResults.Value[aRun, 0] > 0, 'Should have mined some stone');
+
   FreeAndNil(gTerrain);
 end;
 
@@ -161,6 +163,8 @@ begin
   fResults.Value[aRun, 0] := gHands[0].Stats.GetUnitQty(utAny);
   fResults.Value[aRun, 1] := gHands[1].Stats.GetUnitQty(utAny);
 
+  AssertTrue((fResults.Value[aRun, 0] < 8) or (fResults.Value[aRun, 1] < 8), 'Units should have fought and died');
+
   gGameApp.StopGame(grSilent);
 end;
 
@@ -169,8 +173,6 @@ end;
 procedure TKMRunnerAIBuild.SetUp;
 begin
   inherited;
-  if gLog = nil then
-    gLog := TKMLog.Create(ExeDir + 'Utils\Runner\Runner_Log.log');
 
   fResults.ValueCount := 6;
 //  fResults.TimesCount := 60*60*10;
