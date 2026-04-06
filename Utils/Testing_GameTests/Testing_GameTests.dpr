@@ -17,7 +17,8 @@ uses
   {$ENDIF}
   Unit1 in 'Unit1.pas' {Form2},
   Unit_Runner in 'Unit_Runner.pas',
-  Runner_Game in 'Runner_Game.pas';
+  Runner_TestStone in 'Runner_TestStone.pas',
+  Runner_TestFight95 in 'Runner_TestFight95.pas';
 
 {$R *.res}
 
