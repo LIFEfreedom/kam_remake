@@ -35,8 +35,8 @@ begin
   fResults.ValueCount := 1;
 //  fResults.TimesCount := 0;
 
-  FEAT_AI_GENERATE_INFLUENCE := False;
-  FEAT_AI_GENERATE_NAVMESH := False;
+  //FEAT_AI_GENERATE_INFLUENCE := False;
+  //FEAT_AI_GENERATE_NAVMESH := False;
   DYNAMIC_TERRAIN := False;
 end;
 
@@ -44,60 +44,37 @@ end;
 procedure TKMRunnerStone.TearDown;
 begin
   inherited;
-  FEAT_AI_GENERATE_INFLUENCE := True;
-  FEAT_AI_GENERATE_NAVMESH := True;
+  //FEAT_AI_GENERATE_INFLUENCE := True;
+  //FEAT_AI_GENERATE_NAVMESH := True;
   DYNAMIC_TERRAIN := True;
 end;
 
 
 procedure TKMRunnerStone.Execute(aRun: Integer);
-var
-  I,K: Integer;
-  L: TKMPointList;
-  P: TKMPoint;
 begin
-  //Total amount of stone = 4140
-  gTerrain := TKMTerrain.Create;
-//  gTerrain.LoadFromFile(ExeDir + 'Maps\StoneMines\StoneMines.map', False);
-  gTerrain.LoadFromFile(ExeDir + 'Maps\StoneMinesTest\StoneMinesTest.map', False);
+  gGameApp.NewEmptyMap(32, 32);
 
   SetKaMSeed(aRun+1);
 
-  //Stonemining is done programmatically, by iterating through all stone tiles
-  //and mining them if conditions are right (like Stonemasons would do)
+  // Set a stone deposit for mining
+  // 132 is a base tile ID for Stone (tkStone)
+  gTerrain.ScriptTrySetTile(16, 10, 132, 0);
 
-  L := TKMPointList.Create;
-  for I := 1 to gTerrain.MapY - 2 do
-  for K := 1 to gTerrain.MapX - 1 do
-  if gTerrain.TileIsStone(K,I) > 0 then
-    L.Add(KMPoint(K,I));
+  // Set the quarry house
+  gHands[0].AddHouse(htQuarry, 16, 16, False);
+  
+  // Add the stonemason unit just outside the house
+  gHands[0].AddUnit(utStonemason, KMPoint(16, 17));
 
-  I := 0;
-  fResults.Value[aRun, 0] := 0;
-  while L.Count > 0 do
-  begin
-    L.GetRandom(P);
+  // Run the simulation loop
+  SimulateGame;
 
-    if gTerrain.TileIsStone(P.X,P.Y) > 0 then
-    begin
-      if gTerrain.CheckPassability(KMPointBelow(P), tpWalk) then
-      begin
-        gTerrain.DecStoneDeposit(P);
-        fResults.Value[aRun, 0] := fResults.Value[aRun, 0] + 3;
-        I := 0;
-      end;
-    end
-    else
-      L.Remove(P);
+  // The stonemason should have found the stone, mined it, and delivered it.
+  fResults.Value[aRun, 0] := gHands[0].Stats.GetWaresProduced(wtStone);
 
-    Inc(I);
-    if I > 200 then
-      Break;
-  end;
+  AssertTrue(fResults.Value[aRun, 0] > 0, 'Stonemason should have mined some stone');
 
-  AssertTrue(fResults.Value[aRun, 0] > 0, 'Should have mined some stone');
-
-  FreeAndNil(gTerrain);
+  gGameApp.StopGame(grSilent);
 end;
 
 initialization
