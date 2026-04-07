@@ -1,4 +1,4 @@
-﻿unit Unit_Runner;
+unit Unit_Runner;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -37,7 +37,8 @@ type
 
     // General mechanics and logic
     tcProjectiles, tcPathfinding, tcPascalScript, tcHunger,
-    tcEconomy, tcCombat, tcAI, tcNetworking, tcMultiplayer
+    tcEconomy, tcCombat, tcAI, tcNetworking, tcMultiplayer,
+    tcChopTree, tcPlantTree
   );
 
   TKMTestCategorySet = set of TKMTestCategory;

@@ -18,6 +18,8 @@ uses
   Unit1 in 'Unit1.pas' {Form2},
   Unit_Runner in 'Unit_Runner.pas',
   Runner_TestStone in 'Runner_TestStone.pas',
+  Runner_TestWoodcutter_Chop in 'Runner_TestWoodcutter_Chop.pas',
+  Runner_TestWoodcutter_Plant in 'Runner_TestWoodcutter_Plant.pas',
   Runner_TestFight95 in 'Runner_TestFight95.pas';
 
 {$R *.res}
