@@ -37,6 +37,7 @@ type
     fOnStop: TBooleanFuncSimple;
     fOnBeforeTick: TBoolCardFuncSimple;
     fOnTick: TBoolCardFuncSimple;
+    function OnTickCondition(aTick: Cardinal): Boolean; virtual;
     procedure SetUp; virtual;
     procedure TearDown; virtual;
     procedure Execute(aRun: Integer); virtual; abstract;
@@ -79,6 +80,11 @@ end;
 
 
 { TKMRunnerCommon }
+function TKMRunnerCommon.OnTickCondition(aTick: Cardinal): Boolean;
+begin
+  Result := True; // Продолжаем симуляцию по умолчанию
+end;
+
 constructor TKMRunnerCommon.Create(aRenderTarget: TKMRenderControl; {aOnPause, }aOnStop: TBooleanFuncSimple);
 begin
   inherited Create;
@@ -87,6 +93,7 @@ begin
 
 //  fOnPause := aOnPause;
   fOnStop := aOnStop;
+  fOnTick := OnTickCondition;
 
   fIntParam := 0;
   AIType := aitNone;

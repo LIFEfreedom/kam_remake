@@ -7,6 +7,7 @@ uses
 type
   TKMRunnerStone = class(TKMRunnerCommon)
   protected
+    function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
     procedure TearDown; override;
@@ -38,6 +39,18 @@ begin
   //FEAT_AI_GENERATE_INFLUENCE := False;
   //FEAT_AI_GENERATE_NAVMESH := False;
   DYNAMIC_TERRAIN := False;
+
+  gGameApp.NewEmptyMap(32, 32);
+
+  // Set a stone deposit for mining
+  // 132 is a base tile ID for Stone (tkStone)
+  gTerrain.ScriptTrySetTile(16, 10, 132, 0);
+
+  // Set the quarry house
+  gHands[0].AddHouse(htQuarry, 16, 16, False);
+  
+  // Add the stonemason unit just outside the house
+  gHands[0].AddUnit(utStonemason, KMPoint(16, 17));
 end;
 
 
@@ -49,22 +62,22 @@ begin
   DYNAMIC_TERRAIN := True;
 end;
 
+function TKMRunnerStone.OnTickCondition(aTick: Cardinal): Boolean;
+begin
+  // Продолжаем симуляцию (True), пока камень еще не добыт
+  Result := gHands[0].Stats.GetWaresProduced(wtStone) = 0;
+end;
 
 procedure TKMRunnerStone.Execute(aRun: Integer);
 begin
-  gGameApp.NewEmptyMap(32, 32);
-
   SetKaMSeed(aRun+1);
-
-  // Set a stone deposit for mining
-  // 132 is a base tile ID for Stone (tkStone)
-  gTerrain.ScriptTrySetTile(16, 10, 132, 0);
-
-  // Set the quarry house
-  gHands[0].AddHouse(htQuarry, 16, 16, False);
   
-  // Add the stonemason unit just outside the house
-  gHands[0].AddUnit(utStonemason, KMPoint(16, 17));
+  // 1. подписаться на OnTick
+  // 2. Исправить инициализацию ресурсов, чтобы все не грузилось каждый раз - достаточно загружать только один раз так как загружаются все ресурсы
+  // 3. Поставить игре ускорение 1000, не показывать рендер или выполнять каждый 1000 кадр
+  // 4. SetKaMSeed вынести наружу и задавать из интерфейса (по дефолту 4 или переопределенный)
+  // 5. Добавить возможность запуска тестов или одного теста в N итераций с разными сидами
+  // 6. Запуск тестов из командной строки (без рендера, с ускорением 1000, с выводом результатов в консоль)
 
   // Run the simulation loop
   SimulateGame;

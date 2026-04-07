@@ -7,6 +7,7 @@ uses
 type
   TKMRunnerFight95 = class(TKMRunnerCommon)
   protected
+    function OnTickCondition(aTick: Cardinal): Boolean; override;
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
     procedure TearDown; override;
@@ -33,9 +34,14 @@ procedure TKMRunnerFight95.SetUp;
 begin
   inherited;
   fResults.ValueCount := 2;
-//  fResults.TimesCount := 2*60*10;
-
   DYNAMIC_TERRAIN := False;
+
+  gGameApp.NewEmptyMap(128, 128);
+
+  gHands[0].AddUnitGroup(utSwordFighter, KMPoint(63, 64), TKMDirection(dirE), 8, 24);
+  gHands[1].AddUnitGroup(utSwordFighter, KMPoint(65, 64), TKMDirection(dirW), 8, 24);
+
+  gHands[1].UnitGroups[0].OrderAttackUnit(gHands[0].Units[0], True);
 end;
 
 
@@ -45,17 +51,16 @@ begin
   DYNAMIC_TERRAIN := True;
 end;
 
+function TKMRunnerFight95.OnTickCondition(aTick: Cardinal): Boolean;
+begin
+  // Продолжаем симуляцию до тех пор, пока обе армии не будут уничтожены
+  Result := (gHands[0].Stats.GetUnitQty(utAny) > 0) 
+  and (gHands[1].Stats.GetUnitQty(utAny) > 0);
+end;
 
 procedure TKMRunnerFight95.Execute(aRun: Integer);
 begin
-  gGameApp.NewEmptyMap(128, 128);
   SetKaMSeed(aRun + 1);
-
-  gHands[0].AddUnitGroup(utSwordFighter, KMPoint(63, 64), TKMDirection(dirE), 8, 24);
-  gHands[1].AddUnitGroup(utSwordFighter, KMPoint(65, 64), TKMDirection(dirW), 8, 24);
-
-  gHands[1].UnitGroups[0].OrderAttackUnit(gHands[0].Units[0], True);
-
   SimulateGame;
 
   fResults.Value[aRun, 0] := gHands[0].Stats.GetUnitQty(utAny);
