@@ -247,11 +247,14 @@ end;
 procedure TKMRunnerCommon.SimulateGame(aStartTick: Integer = 0; aEndTick: Integer = -1);
 var
   I: Integer;
+  VLastRenderTime: Cardinal;
 begin
   if (aEndTick = -1) then
     aEndTick := fResults.TimesCount - 1
   else
     aEndTick := Min(aEndTick,fResults.TimesCount - 1);
+
+  VLastRenderTime := TimeGet;
 
   for I := aStartTick to aEndTick do
   begin
@@ -262,7 +265,12 @@ begin
       Exit;
 
     gGameApp.Game.UpdateGame;
-    gGameApp.Render(False);
+    
+    if (TimeGet - VLastRenderTime) > 100 then
+    begin
+      gGameApp.Render(False);
+      VLastRenderTime := TimeGet;
+    end;
 
     if Assigned(fOnTick)
       and not fOnTick(I+1) then
