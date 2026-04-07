@@ -3,8 +3,8 @@ unit Unit1;
 interface
 uses
   Forms, Controls, StdCtrls, Spin, ExtCtrls, Classes, SysUtils, Graphics, Types, Math, Windows,
-  Unit_Runner, KM_RenderControl,
-  {$IFDEF WDC} Vcl.ComCtrls {$ELSE} ComCtrls {$ENDIF};
+  Unit_Runner, KM_RenderControl, TypInfo,
+  {$IFDEF WDC} Vcl.ComCtrls, Vcl.CheckLst {$ELSE} ComCtrls, CheckLst {$ENDIF};
 
 
 type
@@ -13,6 +13,7 @@ type
     seCycles: TSpinEdit;
     Label1: TLabel;
     ListBox1: TListBox;
+    clbCategories: TCheckListBox;
     Label2: TLabel;
     PageControl1: TPageControl;
     TabSheet5: TTabSheet;
@@ -35,6 +36,7 @@ type
     btnRunAll: TButton;
     btnStop: TButton;
     btnPause: TButton;
+    procedure clbCategoriesClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
     procedure btnRunAllClick(Sender: TObject);
@@ -48,6 +50,7 @@ type
     fStopped: Boolean;
     fPaused: Boolean;
     RenderArea: TKMRenderControl;
+    procedure RefreshTestList;
     function IsStopped: Boolean;
     function IsPaused: Boolean;
     procedure Testing_GameTestsProgress(const aValue: UnicodeString);
@@ -86,6 +89,47 @@ end;
 {$ENDIF}
 
 
+procedure TForm2.clbCategoriesClick(Sender: TObject);
+begin
+  RefreshTestList;
+end;
+
+procedure TForm2.RefreshTestList;
+var
+  I: Integer;
+  Cat: TKMTestCategory;
+  FilterSet: TKMTestCategorySet;
+  Match: Boolean;
+  S: string;
+begin
+  FilterSet := [];
+  for I := 0 to clbCategories.Items.Count - 1 do
+    if clbCategories.Checked[I] then
+      FilterSet := FilterSet + [TKMTestCategory(Integer(clbCategories.Items.Objects[I]))];
+
+  ListBox1.Items.Clear;
+  for I := 0 to High(RunnerList) do
+  begin
+    Match := False;
+    for Cat in RunnerList[I].TestCategories do
+      if Cat in FilterSet then Match := True;
+
+    if Match then
+    begin
+      S := RunnerList[I].ClassName;
+      S := StringReplace(S, 'TKMRunner', '', [rfIgnoreCase]);
+      ListBox1.Items.AddObject(S, TObject(I));
+    end;
+  end;
+
+  if ListBox1.Items.Count > 0 then
+    ListBox1.ItemIndex := 0
+  else
+    btnRun.Enabled := False;
+    
+  ListBox1Click(nil);
+end;
+
 procedure TForm2.btnStopClick(Sender: TObject);
 begin
   fStopped := True;
@@ -97,14 +141,32 @@ end;
 procedure TForm2.FormCreate(Sender: TObject);
 var
   I: Integer;
+  CatSet: TKMTestCategorySet;
+  Cat: TKMTestCategory;
+  S: string;
 begin
   RenderArea := TKMRenderControl.Create(Panel1);
   RenderArea.Parent := Panel1;
   RenderArea.Align := alClient;
   RenderArea.Color := clMaroon;
 
+  CatSet := [];
   for I := 0 to High(RunnerList) do
-    ListBox1.Items.Append(RunnerList[I].ClassName);
+    CatSet := CatSet + RunnerList[I].TestCategories;
+
+  for Cat := Low(TKMTestCategory) to High(TKMTestCategory) do
+  begin
+    if Cat in CatSet then
+    begin
+      S := GetEnumName(TypeInfo(TKMTestCategory), Integer(Cat));
+      if Copy(S, 1, 2) = 'tc' then
+        Delete(S, 1, 2);
+      clbCategories.Items.AddObject(S, TObject(Cat));
+      clbCategories.Checked[clbCategories.Items.Count - 1] := True;
+    end;
+  end;
+
+  RefreshTestList;
 
   if Length(RunnerList) > 0 then
   begin
@@ -191,8 +253,8 @@ var
   Testing_GameTestsClass: TKMRunnerClass;
   Testing_GameTests: TKMRunnerCommon;
 begin
-  ID := ListBox1.ItemIndex;
-  if ID = -1 then Exit;
+  if ListBox1.ItemIndex = -1 then Exit;
+  ID := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
   Count := seCycles.Value;
   if Count <= 0 then Exit;
 
@@ -246,7 +308,7 @@ var
   ID, Count: Integer;
   Testing_GameTestsClass: TKMRunnerClass;
   Testing_GameTests: TKMRunnerCommon;
-  I: Integer;
+  I, K: Integer;
   resStr: string;
 begin
   Count := seCycles.Value;
@@ -262,10 +324,11 @@ begin
   btnStop.Enabled := True;
   btnPause.Enabled := False; //Always disabled for now
 
-  for ID := 0 to High(RunnerList) do
+  for K := 0 to ListBox1.Items.Count - 1 do
   begin
     if fStopped then Break;
 
+    ID := Integer(ListBox1.Items.Objects[K]);
     Testing_GameTestsClass := RunnerList[ID];
 
     if chkRender.Checked then

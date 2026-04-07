@@ -1,4 +1,4 @@
-unit Unit_Runner;
+﻿unit Unit_Runner;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -76,8 +76,6 @@ type
     procedure SimulateGame(aStartTick: Integer = 0; aEndTick: Integer = -1);
     procedure ProcessRunResults;
   public
-    class function TestCategories: TKMTestCategorySet; virtual;
-    class function TestDescription: UnicodeString; virtual;
     Duration: Integer;
     Seed: Integer;
     AIType: TKMAIType;
@@ -94,6 +92,8 @@ type
     procedure AssertTrue(aCondition: Boolean; const aMessage: string);
     procedure AssertEquals(aExpected, aActual: Integer; const aMessage: string);
     procedure Fail(const aMessage: string);
+    class function TestCategories: TKMTestCategorySet; virtual;
+    class function TestDescription: UnicodeString; virtual;
   end;
 
 procedure RegisterRunner(aRunner: TKMRunnerClass);

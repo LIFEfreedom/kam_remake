@@ -1,6 +1,6 @@
 object Form2: TForm2
   Left = 244
-  Top = 169
+  Top = 289
   Caption = 'Testing_GameTests'
   ClientHeight = 641
   ClientWidth = 1097
@@ -19,14 +19,14 @@ object Form2: TForm2
   TextHeight = 13
   object Label1: TLabel
     Left = 8
-    Top = 127
+    Top = 247
     Width = 35
     Height = 13
     Caption = 'Cycles:'
   end
   object Label2: TLabel
     Left = 187
-    Top = 256
+    Top = 376
     Width = 15
     Height = 13
     Alignment = taRightJustify
@@ -34,14 +34,14 @@ object Form2: TForm2
   end
   object Label4: TLabel
     Left = 103
-    Top = 127
+    Top = 247
     Width = 72
     Height = 13
     Caption = 'Duration (min):'
   end
   object Label5: TLabel
     Left = 187
-    Top = 236
+    Top = 356
     Width = 15
     Height = 13
     Alignment = taRightJustify
@@ -49,7 +49,7 @@ object Form2: TForm2
   end
   object Label6: TLabel
     Left = 184
-    Top = 276
+    Top = 396
     Width = 18
     Height = 13
     Alignment = taRightJustify
@@ -57,14 +57,14 @@ object Form2: TForm2
   end
   object Label7: TLabel
     Left = 8
-    Top = 168
+    Top = 288
     Width = 28
     Height = 13
     Caption = 'Seed:'
   end
   object Label8: TLabel
     Left = 184
-    Top = 296
+    Top = 416
     Width = 18
     Height = 13
     Alignment = taRightJustify
@@ -72,28 +72,28 @@ object Form2: TForm2
   end
   object Label9: TLabel
     Left = 8
-    Top = 215
+    Top = 335
     Width = 18
     Height = 13
     Caption = '      '
   end
   object Label10: TLabel
     Left = 8
-    Top = 256
+    Top = 376
     Width = 18
     Height = 13
     Caption = '      '
   end
   object Label11: TLabel
     Left = 8
-    Top = 276
+    Top = 396
     Width = 18
     Height = 13
     Caption = '      '
   end
   object Label12: TLabel
     Left = 184
-    Top = 316
+    Top = 436
     Width = 18
     Height = 13
     Alignment = taRightJustify
@@ -101,7 +101,7 @@ object Form2: TForm2
   end
   object btnRun: TButton
     Left = 8
-    Top = 412
+    Top = 532
     Width = 89
     Height = 38
     Caption = 'Run'
@@ -111,7 +111,7 @@ object Form2: TForm2
   end
   object btnRunAll: TButton
     Left = 103
-    Top = 456
+    Top = 576
     Width = 89
     Height = 38
     Caption = 'Run All'
@@ -121,7 +121,7 @@ object Form2: TForm2
   end
   object seCycles: TSpinEdit
     Left = 8
-    Top = 144
+    Top = 264
     Width = 89
     Height = 22
     MaxValue = 1000000
@@ -137,6 +137,15 @@ object Form2: TForm2
     ItemHeight = 13
     TabOrder = 2
     OnClick = ListBox1Click
+  end
+  object clbCategories: TCheckListBox
+    Left = 8
+    Top = 127
+    Width = 185
+    Height = 113
+    ItemHeight = 13
+    TabOrder = 11
+    OnClick = clbCategoriesClick
   end
   object PageControl1: TPageControl
     Left = 208
@@ -176,7 +185,7 @@ object Form2: TForm2
   end
   object chkRender: TCheckBox
     Left = 8
-    Top = 456
+    Top = 576
     Width = 57
     Height = 17
     Caption = 'Render'
@@ -184,7 +193,7 @@ object Form2: TForm2
   end
   object seDuration: TSpinEdit
     Left = 103
-    Top = 144
+    Top = 264
     Width = 89
     Height = 22
     MaxValue = 1000000
@@ -194,7 +203,7 @@ object Form2: TForm2
   end
   object seSeed: TSpinEdit
     Left = 8
-    Top = 187
+    Top = 307
     Width = 89
     Height = 22
     MaxValue = 2000000000
@@ -204,7 +213,7 @@ object Form2: TForm2
   end
   object rgAIType: TRadioGroup
     Left = 106
-    Top = 172
+    Top = 292
     Width = 96
     Height = 53
     Caption = 'AI type'
@@ -216,7 +225,7 @@ object Form2: TForm2
   end
   object btnStop: TButton
     Left = 103
-    Top = 412
+    Top = 532
     Width = 89
     Height = 38
     Caption = 'Stop'
@@ -226,7 +235,7 @@ object Form2: TForm2
   end
   object btnPause: TButton
     Left = 104
-    Top = 456
+    Top = 576
     Width = 89
     Height = 21
     Caption = 'Pause'
