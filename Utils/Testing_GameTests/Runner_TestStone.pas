@@ -1,4 +1,4 @@
-﻿unit Runner_TestStone;
+unit Runner_TestStone;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -11,6 +11,8 @@ type
     procedure SetUp; override;
     procedure Execute(aRun: Integer); override;
     procedure TearDown; override;
+  public
+    class function TestCategories: TKMTestCategorySet; override;
   end;
 
 implementation
@@ -86,6 +88,11 @@ begin
   AssertTrue(fResults.Value[aRun, 0] > 0, 'Stonemason should have mined some stone');
 
   gGameApp.StopGame(grSilent);
+end;
+
+class function TKMRunnerStone.TestCategories: TKMTestCategorySet;
+begin
+  Result := [tcQuarry, tcStonemason];
 end;
 
 initialization

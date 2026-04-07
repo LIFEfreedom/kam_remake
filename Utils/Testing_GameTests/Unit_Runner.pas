@@ -11,6 +11,37 @@ type
   TKMRunnerCommon = class;
   TKMRunnerClass = class of TKMRunnerCommon;
 
+  TKMTestCategory = (
+    tcNone,
+    
+    // Buildings
+    tcArmorSmithy, tcArmorWorkshop, tcBakery, tcBarracks, tcButchers,
+    tcCoalMine, tcFarm, tcFishermans, tcGoldMine, tcInn,
+    tcIronMine, tcIronSmithy, tcMarket, tcMetallurgists, tcMill,
+    tcQuarry, tcSawmill, tcSchool, tcSiegeWorkshop, tcStables,
+    tcStore, tcSwine, tcTannery, tcTownHall, tcWatchTower,
+    tcWeaponSmithy, tcWeaponWorkshop, tcVineyard, tcWoodcutters,
+
+    // Units
+    tcSerf, tcWoodcutter, tcMiner, tcAnimalBreeder, tcFarmer,
+    tcCarpenter, tcBaker, tcButcher, tcFisher, tcBuilder,
+    tcStonemason, tcSmith, tcMetallurgist, tcRecruit,
+
+    tcMilitia, tcAxeFighter, tcSwordFighter, tcBowman, tcCrossbowman,
+    tcLanceCarrier, tcPikeman, tcScout, tcKnight, tcBarbarian,
+
+    tcRebel, tcRogue, tcWarrior, tcVagabond,
+
+    tcWolf, tcFish, tcWatersnake, tcSeastar, tcCrab,
+    tcWaterflower, tcWaterleaf, tcDuck,
+
+    // General mechanics and logic
+    tcProjectiles, tcPathfinding, tcPascalScript, tcHunger,
+    tcEconomy, tcCombat, tcAI, tcNetworking, tcMultiplayer
+  );
+
+  TKMTestCategorySet = set of TKMTestCategory;
+
   TKMTestResult = (trSuccess, trFailed, trException);
   ETestFailed = class(Exception);
 
@@ -45,6 +76,7 @@ type
     procedure SimulateGame(aStartTick: Integer = 0; aEndTick: Integer = -1);
     procedure ProcessRunResults;
   public
+    class function TestCategories: TKMTestCategorySet; virtual;
     Duration: Integer;
     Seed: Integer;
     AIType: TKMAIType;
@@ -81,6 +113,11 @@ end;
 
 
 { TKMRunnerCommon }
+class function TKMRunnerCommon.TestCategories: TKMTestCategorySet;
+begin
+  Result := [tcNone];
+end;
+
 function TKMRunnerCommon.OnTickCondition(aTick: Cardinal): Boolean;
 begin
   Result := True; // Продолжаем симуляцию по умолчанию
