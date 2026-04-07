@@ -143,85 +143,9 @@ object Form2: TForm2
     Top = 8
     Width = 881
     Height = 625
-    ActivePage = TabSheet3
+    ActivePage = TabSheet5
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 3
-    OnChange = PageControl1Change
-    object TabSheet1: TTabSheet
-      Caption = 'Results'
-      OnResize = TabSheetResize
-      DesignSize = (
-        873
-        597)
-      object Image1: TImage
-        Left = 40
-        Top = 8
-        Width = 825
-        Height = 569
-        Anchors = [akLeft, akTop, akRight, akBottom]
-      end
-    end
-    object TabSheet2: TTabSheet
-      Caption = 'Distribution'
-      ImageIndex = 1
-      OnResize = TabSheetResize
-      DesignSize = (
-        873
-        597)
-      object Image2: TImage
-        Left = 40
-        Top = 8
-        Width = 825
-        Height = 569
-        Anchors = [akLeft, akTop, akRight, akBottom]
-      end
-    end
-    object TabSheet3: TTabSheet
-      Caption = 'Times'
-      ImageIndex = 2
-      OnResize = TabSheetResize
-      DesignSize = (
-        873
-        597)
-      object Image3: TImage
-        Left = 40
-        Top = 8
-        Width = 825
-        Height = 569
-        Anchors = [akLeft, akTop, akRight, akBottom]
-      end
-      object Label3: TLabel
-        Left = 720
-        Top = 8
-        Width = 47
-        Height = 13
-        Anchors = [akTop, akRight]
-        Caption = 'Threshold'
-      end
-      object TrackBar1: TTrackBar
-        Left = 712
-        Top = 24
-        Width = 150
-        Height = 33
-        Anchors = [akTop, akRight]
-        Max = 25
-        Position = 10
-        TabOrder = 0
-        OnChange = TrackBar1Change
-      end
-    end
-    object TabSheet4: TTabSheet
-      Caption = 'Log'
-      ImageIndex = 3
-      object Memo1: TMemo
-        Left = 0
-        Top = 0
-        Width = 873
-        Height = 597
-        Align = alClient
-        TabOrder = 0
-      end
-    end
     object TabSheet5: TTabSheet
       Caption = 'Test Summary'
       ImageIndex = 5
