@@ -37,6 +37,7 @@ type
     fOnStop: TBooleanFuncSimple;
     fOnBeforeTick: TBoolCardFuncSimple;
     fOnTick: TBoolCardFuncSimple;
+    procedure EnsureResourcesLoaded;
     function OnTickCondition(aTick: Cardinal): Boolean; virtual;
     procedure SetUp; virtual;
     procedure TearDown; virtual;
@@ -195,17 +196,17 @@ begin
 end;
 
 
-procedure TKMRunnerCommon.SetUp;
+procedure TKMRunnerCommon.EnsureResourcesLoaded;
 var
   tgtWidth, tgtHeight: Word;
 begin
+  if gGameApp <> nil then Exit;
+
   SKIP_RENDER := (fRenderTarget = nil);
   SKIP_SOUND := True;
   SKIP_LOADING_CURSOR := True;
   SKIP_SETTINGS_SAVE := True;
   ExeDir := ExtractFilePath(ExcludeTrailingPathDelimiter(ExtractFilePath(ExcludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))))));
-
-  fResults.TimesCount := Duration*60*10;
 
   if fRenderTarget = nil then
   begin
@@ -226,11 +227,17 @@ begin
   gGameApp.PreloadGameResources;
 end;
 
+procedure TKMRunnerCommon.SetUp;
+begin
+  fResults.TimesCount := Duration*60*10;
+  EnsureResourcesLoaded;
+end;
+
 
 procedure TKMRunnerCommon.TearDown;
 begin
-  gGameApp.StopGame(grSilent);
-  FreeAndNil(gGameApp);
+  if gGameApp.Game <> nil then
+    gGameApp.StopGame(grSilent);
 
   if Assigned(OnProgress) then
     OnProgress('Done');

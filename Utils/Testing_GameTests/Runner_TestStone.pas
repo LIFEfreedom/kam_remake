@@ -1,4 +1,4 @@
-unit Runner_TestStone;
+﻿unit Runner_TestStone;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -44,10 +44,10 @@ begin
 
   // Set a stone deposit for mining
   // 132 is a base tile ID for Stone (tkStone)
-  gTerrain.ScriptTrySetTile(16, 10, 132, 0);
+  gTerrain.ScriptTrySetTile(16, 15, 132, 0);
 
   // Set the quarry house
-  gHands[0].AddHouse(htQuarry, 16, 16, False);
+  gHands[0].AddHouse(htQuarry, 16, 20, False);
   
   // Add the stonemason unit just outside the house
   gHands[0].AddUnit(utStonemason, KMPoint(16, 17));
@@ -72,8 +72,6 @@ procedure TKMRunnerStone.Execute(aRun: Integer);
 begin
   SetKaMSeed(aRun+1);
   
-  // 1. подписаться на OnTick
-  // 2. Исправить инициализацию ресурсов, чтобы все не грузилось каждый раз - достаточно загружать только один раз так как загружаются все ресурсы
   // 3. Поставить игре ускорение 1000, не показывать рендер или выполнять каждый 1000 кадр
   // 4. SetKaMSeed вынести наружу и задавать из интерфейса (по дефолту 4 или переопределенный)
   // 5. Добавить возможность запуска тестов или одного теста в N итераций с разными сидами
