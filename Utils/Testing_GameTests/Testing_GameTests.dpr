@@ -18,6 +18,9 @@ uses
   Unit1 in 'Unit1.pas' {Form2},
   Unit_Runner in 'Unit_Runner.pas',
   Runner_TestStone in 'Runner_TestStone.pas',
+  Runner_TestSawmill_Process in 'Runner_TestSawmill_Process.pas',
+  Runner_TestSawmill_DeliveryIn in 'Runner_TestSawmill_DeliveryIn.pas',
+  Runner_TestSawmill_DeliveryOut in 'Runner_TestSawmill_DeliveryOut.pas',
   Runner_TestWoodcutter_Chop in 'Runner_TestWoodcutter_Chop.pas',
   Runner_TestWoodcutter_Plant in 'Runner_TestWoodcutter_Plant.pas',
   Runner_TestFight95 in 'Runner_TestFight95.pas';
