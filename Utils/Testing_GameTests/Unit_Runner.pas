@@ -77,6 +77,7 @@ type
     procedure ProcessRunResults;
   public
     class function TestCategories: TKMTestCategorySet; virtual;
+    class function TestDescription: UnicodeString; virtual;
     Duration: Integer;
     Seed: Integer;
     AIType: TKMAIType;
@@ -116,6 +117,11 @@ end;
 class function TKMRunnerCommon.TestCategories: TKMTestCategorySet;
 begin
   Result := [tcNone];
+end;
+
+class function TKMRunnerCommon.TestDescription: UnicodeString;
+begin
+  Result := 'No description provided.';
 end;
 
 function TKMRunnerCommon.OnTickCondition(aTick: Cardinal): Boolean;
