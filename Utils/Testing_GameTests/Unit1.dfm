@@ -191,6 +191,16 @@ object Form2: TForm2
     Caption = 'Render'
     TabOrder = 4
   end
+  object chkThrottleRender: TCheckBox
+    Left = 8
+    Top = 596
+    Width = 89
+    Height = 17
+    Caption = 'Throttle FPS'
+    Checked = True
+    State = cbChecked
+    TabOrder = 12
+  end
   object seDuration: TSpinEdit
     Left = 103
     Top = 264

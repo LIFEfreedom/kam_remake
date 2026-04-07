@@ -77,6 +77,7 @@ type
     procedure SimulateGame(aStartTick: Integer = 0; aEndTick: Integer = -1);
     procedure ProcessRunResults;
   public
+    ThrottleRender: Boolean;
     Duration: Integer;
     Seed: Integer;
     AIType: TKMAIType;
@@ -142,6 +143,7 @@ begin
 
   fIntParam := 0;
   AIType := aitNone;
+  ThrottleRender := True;
 end;
 
 
@@ -310,11 +312,16 @@ begin
 
     gGameApp.Game.UpdateGame;
     
-    if (TimeGet - VLastRenderTime) > 100 then
+    if ThrottleRender then
     begin
+      if (TimeGet - VLastRenderTime) > 100 then
+      begin
+        gGameApp.Render(False);
+        VLastRenderTime := TimeGet;
+      end;
+    end
+    else
       gGameApp.Render(False);
-      VLastRenderTime := TimeGet;
-    end;
 
     if Assigned(fOnTick)
       and not fOnTick(I+1) then

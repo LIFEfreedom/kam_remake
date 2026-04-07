@@ -21,6 +21,7 @@ type
     Render: TTabSheet;
     Panel1: TPanel;
     chkRender: TCheckBox;
+    chkThrottleRender: TCheckBox;
     seDuration: TSpinEdit;
     Label4: TLabel;
     Label5: TLabel;
@@ -283,6 +284,7 @@ begin
       T := GetTickCount;
       Testing_GameTests.Duration := seDuration.Value;
       Testing_GameTests.Seed := seSeed.Value;
+      Testing_GameTests.ThrottleRender := chkThrottleRender.Checked;
       if rgAIType.ItemIndex = 0 then
         Testing_GameTests.AIType := aitClassic
       else
@@ -348,6 +350,7 @@ begin
       T := GetTickCount;
       Testing_GameTests.Duration := seDuration.Value;
       Testing_GameTests.Seed := seSeed.Value;
+      Testing_GameTests.ThrottleRender := chkThrottleRender.Checked;
       if rgAIType.ItemIndex = 0 then
         Testing_GameTests.AIType := aitClassic
       else
