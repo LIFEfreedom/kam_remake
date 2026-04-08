@@ -28,6 +28,7 @@ uses
   Runner_TestVineyard_Harvest in 'Runner_TestVineyard_Harvest.pas',
   Runner_TestBuilding_Plan in 'Runner_TestBuilding_Plan.pas',
   Runner_TestMill_Process in 'Runner_TestMill_Process.pas',
+  Runner_TestBakery_Process in 'Runner_TestBakery_Process.pas',
   Runner_TestFight95 in 'Runner_TestFight95.pas';
 
 {$R *.res}
