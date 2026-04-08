@@ -25,6 +25,8 @@ uses
   Runner_TestWoodcutter_Plant in 'Runner_TestWoodcutter_Plant.pas',
   Runner_TestFarm_Plant in 'Runner_TestFarm_Plant.pas',
   Runner_TestFarm_Harvest in 'Runner_TestFarm_Harvest.pas',
+  Runner_TestVineyard_Harvest in 'Runner_TestVineyard_Harvest.pas',
+  Runner_TestBuilding_Plan in 'Runner_TestBuilding_Plan.pas',
   Runner_TestFight95 in 'Runner_TestFight95.pas';
 
 {$R *.res}
