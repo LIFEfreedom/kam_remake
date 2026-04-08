@@ -31,7 +31,7 @@ uses
   KM_GameSettings,
   KM_CommonTypes, KM_MapTypes, KM_FileIO, KM_Game, KM_GameInputProcess, KM_GameTypes, KM_InterfaceGame,
   KM_UnitGroupTypes,
-  KM_ResTypes, KM_CampaignClasses;
+  KM_ResTypes, KM_CampaignClasses, KM_ResMapElements;
 
 { TKMRunnerWoodcutter_Chop }
 procedure TKMRunnerWoodcutter_Chop.SetUp;
@@ -44,17 +44,20 @@ begin
 
   gGameApp.NewEmptyMap(32, 32);
 
-  TargetLoc := KMPoint(16, 15);
+  TargetLoc := KMPoint(16, 23);
 
   // Set a full-grown tree for chopping
   treeObjID := gTerrain.ChooseTreeToPlace(TargetLoc, caAgeFull, True);
   gTerrain.SetObject(TargetLoc, treeObjID);
+  
+  // Set TreeAge so the tree is immediately chop-able, skipping the 10 min growth wait
+  gTerrain.Land[TargetLoc.Y, TargetLoc.X].TreeAge := TREE_AGE_FULL;
 
   // Set the woodcutter's house
   TKMHouseWoodcutters(gHands[0].AddHouse(htWoodcutters, 16, 20, False)).WoodcutterMode := wmChop;
   
   // Add the woodcutter unit just outside the house
-  gHands[0].AddUnit(utWoodcutter, KMPoint(16, 17));
+  gHands[0].AddUnit(utWoodcutter, KMPoint(16, 21));
 end;
 
 

@@ -209,7 +209,7 @@ object Form2: TForm2
     MaxValue = 1000000
     MinValue = 0
     TabOrder = 5
-    Value = 100
+    Value = 10
   end
   object seSeed: TSpinEdit
     Left = 8
@@ -219,7 +219,7 @@ object Form2: TForm2
     MaxValue = 2000000000
     MinValue = 0
     TabOrder = 6
-    Value = 0
+    Value = 4
   end
   object rgAIType: TRadioGroup
     Left = 106

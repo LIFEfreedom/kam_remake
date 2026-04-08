@@ -306,7 +306,8 @@ end;
 
 procedure TForm2.btnRunAllClick(Sender: TObject);
 var
-  T: Cardinal;
+  T, TotalT: Cardinal;
+  TotalTestsRun: Integer;
   ID, Count: Integer;
   Testing_GameTestsClass: TKMRunnerClass;
   Testing_GameTests: TKMRunnerCommon;
@@ -325,6 +326,9 @@ begin
   btnRunAll.Enabled := False;
   btnStop.Enabled := True;
   btnPause.Enabled := False; //Always disabled for now
+
+  TotalT := GetTickCount;
+  TotalTestsRun := 0;
 
   for K := 0 to ListBox1.Items.Count - 1 do
   begin
@@ -371,12 +375,18 @@ begin
         else
           moResults.Lines.Append(Format('%s: %s (%d ms)', [Testing_GameTestsClass.ClassName, resStr, GetTickCount - T]));
       end;
+      
+      Inc(TotalTestsRun, Count);
     finally
       Testing_GameTests.Free;
     end;
     
     Application.ProcessMessages;
   end;
+
+  moResults.Lines.Append('=============================');
+  moResults.Lines.Append(Format('Total Tests Run: %d', [TotalTestsRun]));
+  moResults.Lines.Append(Format('Total Time Spent: %d ms', [GetTickCount - TotalT]));
 
   btnRun.Enabled := True;
   btnRunAll.Enabled := True;
