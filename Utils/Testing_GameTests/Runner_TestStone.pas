@@ -37,10 +37,7 @@ procedure TKMRunnerStone.SetUp;
 begin
   inherited;
   fResults.ValueCount := 1;
-//  fResults.TimesCount := 0;
 
-  //FEAT_AI_GENERATE_INFLUENCE := False;
-  //FEAT_AI_GENERATE_NAVMESH := False;
   DYNAMIC_TERRAIN := False;
 
   gGameApp.NewEmptyMap(32, 32);
@@ -60,14 +57,12 @@ end;
 procedure TKMRunnerStone.TearDown;
 begin
   inherited;
-  //FEAT_AI_GENERATE_INFLUENCE := True;
-  //FEAT_AI_GENERATE_NAVMESH := True;
   DYNAMIC_TERRAIN := True;
 end;
 
 function TKMRunnerStone.OnTickCondition(aTick: Cardinal): Boolean;
 begin
-  // Продолжаем симуляцию (True), пока камень еще не добыт
+  // Continue simulation (True) until stone is produced
   Result := gHands[0].Stats.GetWaresProduced(wtStone) = 0;
 end;
 
@@ -75,11 +70,6 @@ procedure TKMRunnerStone.Execute(aRun: Integer);
 begin
   SetKaMSeed(aRun+1);
   
-  // 3. Поставить игре ускорение 1000, не показывать рендер или выполнять каждый 1000 кадр
-  // 4. SetKaMSeed вынести наружу и задавать из интерфейса (по дефолту 4 или переопределенный)
-  // 5. Добавить возможность запуска тестов или одного теста в N итераций с разными сидами
-  // 6. Запуск тестов из командной строки (без рендера, с ускорением 1000, с выводом результатов в консоль)
-
   // Run the simulation loop
   SimulateGame;
 
@@ -98,7 +88,7 @@ end;
 
 class function TKMRunnerStone.TestDescription: UnicodeString;
 begin
-  Result := 'Проверяет способность камнетеса найти камень, добыть его и принести в каменоломню.';
+  Result := 'Tests a stonemason''s ability to find stone, mine it, and deliver it to the quarry.';
 end;
 
 initialization

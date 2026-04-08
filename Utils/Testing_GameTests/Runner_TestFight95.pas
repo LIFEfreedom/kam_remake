@@ -53,7 +53,7 @@ end;
 
 function TKMRunnerFight95.OnTickCondition(aTick: Cardinal): Boolean;
 begin
-  // Продолжаем симуляцию до тех пор, пока обе армии не будут уничтожены
+  // Continue simulation (True) until one of armies are destroyed
   Result := (gHands[0].Stats.GetUnitQty(utAny) > 0) 
   and (gHands[1].Stats.GetUnitQty(utAny) > 0);
 end;

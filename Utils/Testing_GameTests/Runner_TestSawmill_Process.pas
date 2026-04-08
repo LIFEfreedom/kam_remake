@@ -75,7 +75,7 @@ end;
 
 class function TKMRunnerSawmill_Process.TestDescription: UnicodeString;
 begin
-  Result := 'Проверяет способность лесопилки (плотника) переработать одно бревно во внутреннем запасе в две доски.';
+  Result := 'Tests the sawmill (carpenter''s) ability to process one trunk from the internal stock into two boards.';
 end;
 
 initialization

@@ -93,7 +93,7 @@ end;
 
 class function TKMRunnerSawmill_DeliveryIn.TestDescription: UnicodeString;
 begin
-  Result := 'Проверяет способность слуги принести бревно со склада на лесопилку.';
+  Result := 'Tests a servant''s ability to carry a log from the warehouse to the sawmill.';
 end;
 
 initialization

@@ -58,7 +58,7 @@ function TKMRunnerWoodcutter_Plant.OnTickCondition(aTick: Cardinal): Boolean;
 var
   X, Y: Integer;
 begin
-  // Продолжаем симуляцию (True), пока не будет посажено хоть одно дерево (caAge1) возле дома
+  // Continue simulation (True) until at least one tree (caAge1) is planted near the house
   Result := True;
   
   for Y := 10 to 25 do
@@ -96,7 +96,7 @@ end;
 
 class function TKMRunnerWoodcutter_Plant.TestDescription: UnicodeString;
 begin
-  Result := 'Проверяет способность лесника высадить саженец дерева при режиме "только сажать".';
+  Result := 'Tests a woodcutter''s ability to plant a sapling.';
 end;
 
 initialization

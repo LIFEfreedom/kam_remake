@@ -65,7 +65,7 @@ end;
 
 function TKMRunnerWoodcutter_Chop.OnTickCondition(aTick: Cardinal): Boolean;
 begin
-  // Продолжаем симуляцию (True), пока бревно еще не получено
+  // Continue simulation (True) until a trunk is produced
   Result := gHands[0].Stats.GetWaresProduced(wtTrunk) = 0;
 end;
 
@@ -91,7 +91,7 @@ end;
 
 class function TKMRunnerWoodcutter_Chop.TestDescription: UnicodeString;
 begin
-  Result := 'Проверяет способность лесника найти дерево, срубить его и принести бревно в избу.';
+  Result := 'Tests a woodcutter''s ability to find a tree, chop it, and bring a log to the house.';
 end;
 
 initialization

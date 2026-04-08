@@ -93,7 +93,7 @@ end;
 
 class function TKMRunnerSawmill_DeliveryOut.TestDescription: UnicodeString;
 begin
-  Result := 'Проверяет способность слуги вынести готовые доски со склада лесопилки в главное хранилище.';
+  Result := 'Tests the servant''s ability to carry finished boards from the sawmill warehouse to the main storage area.';
 end;
 
 initialization
