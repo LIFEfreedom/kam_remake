@@ -42,8 +42,7 @@ begin
   gGameApp.NewEmptyMap(32, 32);
 
   for I := 9 to 21 do
-    for J := 15 to 17 do
-      gHands[0].AddRoadToList(KMPoint(I, J));
+      gHands[0].AddRoadToList(KMPoint(I, 17));
   gHands[0].AfterMissionInit(False);
 
   Store := TKMHouseStore(gHands[0].AddHouse(htStore, 10, 16, False));
@@ -52,7 +51,7 @@ begin
   gHands[0].AddHouse(htSawmill, 20, 16, False);
   
   // Serf to deliver the trunk
-  gHands[0].AddUnit(utSerf, KMPoint(15, 16));
+  gHands[0].AddUnit(utSerf, KMPoint(10, 17));
 end;
 
 function TKMRunnerSawmill_DeliveryIn.OnTickCondition(aTick: Cardinal): Boolean;
@@ -89,7 +88,7 @@ end;
 
 class function TKMRunnerSawmill_DeliveryIn.TestCategories: TKMTestCategorySet;
 begin
-  Result := [tcSawmill, tcEconomy];
+  Result := [tcSawmill, tcEconomy, tcDeliveryIn];
 end;
 
 class function TKMRunnerSawmill_DeliveryIn.TestDescription: UnicodeString;

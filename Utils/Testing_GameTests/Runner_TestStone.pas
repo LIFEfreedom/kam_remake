@@ -53,7 +53,7 @@ begin
   gHands[0].AddHouse(htQuarry, 16, 20, False);
   
   // Add the stonemason unit just outside the house
-  gHands[0].AddUnit(utStonemason, KMPoint(16, 17));
+  gHands[0].AddUnit(utStonemason, KMPoint(16, 21));
 end;
 
 

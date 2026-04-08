@@ -1,4 +1,4 @@
-﻿unit Runner_TestSawmill_DeliveryOut;
+unit Runner_TestSawmill_DeliveryOut;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -41,8 +41,7 @@ begin
   gGameApp.NewEmptyMap(32, 32);
 
   for I := 9 to 21 do
-    for J := 15 to 17 do
-      gHands[0].AddRoadToList(KMPoint(I, J));
+      gHands[0].AddRoadToList(KMPoint(I, 17));
   gHands[0].AfterMissionInit(False);
 
   gHands[0].AddHouse(htStore, 10, 16, False);
@@ -51,8 +50,8 @@ begin
   // Give sawmill completed product (wtWood is index 1 for outputs of Sawmill)
   H.ResIn[1] := 2;
 
-  gHands[0].AddUnit(utSerf, KMPoint(15, 16));
-  gHands[0].AddUnit(utCarpenter, KMPoint(16, 17));
+  gHands[0].AddUnit(utSerf, KMPoint(20, 17));
+  gHands[0].AddUnit(utCarpenter, KMPoint(19, 17));
 end;
 
 function TKMRunnerSawmill_DeliveryOut.OnTickCondition(aTick: Cardinal): Boolean;
@@ -89,7 +88,7 @@ end;
 
 class function TKMRunnerSawmill_DeliveryOut.TestCategories: TKMTestCategorySet;
 begin
-  Result := [tcSawmill, tcEconomy];
+  Result := [tcSawmill, tcEconomy, tcDeliveryOut];
 end;
 
 class function TKMRunnerSawmill_DeliveryOut.TestDescription: UnicodeString;

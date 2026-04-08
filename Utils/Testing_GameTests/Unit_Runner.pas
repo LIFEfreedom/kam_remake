@@ -38,7 +38,7 @@ type
     // General mechanics and logic
     tcProjectiles, tcPathfinding, tcPascalScript, tcHunger,
     tcEconomy, tcCombat, tcAI, tcNetworking, tcMultiplayer,
-    tcChopTree, tcPlantTree
+    tcChopTree, tcPlantTree, tcDeliveryIn, tcDeliveryOut
   );
 
   TKMTestCategorySet = set of TKMTestCategory;
