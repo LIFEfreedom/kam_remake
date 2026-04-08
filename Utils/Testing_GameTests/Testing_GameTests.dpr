@@ -23,6 +23,8 @@ uses
   Runner_TestSawmill_DeliveryOut in 'Runner_TestSawmill_DeliveryOut.pas',
   Runner_TestWoodcutter_Chop in 'Runner_TestWoodcutter_Chop.pas',
   Runner_TestWoodcutter_Plant in 'Runner_TestWoodcutter_Plant.pas',
+  Runner_TestFarm_Plant in 'Runner_TestFarm_Plant.pas',
+  Runner_TestFarm_Harvest in 'Runner_TestFarm_Harvest.pas',
   Runner_TestFight95 in 'Runner_TestFight95.pas';
 
 {$R *.res}
