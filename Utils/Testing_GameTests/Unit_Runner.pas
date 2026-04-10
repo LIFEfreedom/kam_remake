@@ -1,4 +1,4 @@
-unit Unit_Runner;
+﻿unit Unit_Runner;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -323,6 +323,8 @@ begin
     else
       gGameApp.Render(False);
 
+    //Sleep(50);
+
     if Assigned(fOnTick)
       and not fOnTick(I+1) then
       Exit;
@@ -341,12 +343,5 @@ begin
   end;
 end;
 
-
-initialization
-  if gLog = nil then
-    gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Testing_GameTests.log');
-
-finalization
-  FreeAndNil(gLog);
 
 end.

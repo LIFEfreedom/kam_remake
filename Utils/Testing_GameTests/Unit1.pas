@@ -3,13 +3,15 @@ unit Unit1;
 interface
 uses
   Forms, Controls, StdCtrls, Spin, ExtCtrls, Classes, SysUtils, Graphics, Types, Math, Windows,
-  Unit_Runner, KM_RenderControl, TypInfo,
+  Unit_Runner, KM_Log, KM_RenderControl, KM_GameApp,
+  TypInfo,
   {$IFDEF WDC} Vcl.ComCtrls, Vcl.CheckLst {$ELSE} ComCtrls, CheckLst {$ENDIF};
 
 
 type
   TForm2 = class(TForm)
     btnRun: TButton;
+    btnTryFoundSeed: TButton;
     seCycles: TSpinEdit;
     Label1: TLabel;
     ListBox1: TListBox;
@@ -39,7 +41,10 @@ type
     btnPause: TButton;
     procedure clbCategoriesClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure chkRenderClick(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
+    procedure btnTryFoundSeedClick(Sender: TObject);
     procedure btnRunAllClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
@@ -72,7 +77,7 @@ var
 implementation
 {$R *.dfm}
 uses
-  KM_GameTypes;
+  KM_GameTypes, KM_Defaults;
 
 
 const
@@ -146,6 +151,9 @@ var
   Cat: TKMTestCategory;
   S: string;
 begin
+  if gLog = nil then
+    gLog := TKMLog.Create(ExtractFilePath(ParamStr(0)) + 'Testing_GameTests.log');
+
   RenderArea := TKMRenderControl.Create(Panel1);
   RenderArea.Parent := Panel1;
   RenderArea.Align := alClient;
@@ -174,13 +182,25 @@ begin
     ListBox1.ItemIndex := 0;
     btnRun.Enabled := True;
     btnRunAll.Enabled := True;
+    btnTryFoundSeed.Enabled := True;
     btnStop.Enabled := False;
     btnPause.Enabled := False;
   end;
 
+  SKIP_RENDER := not chkRender.Checked;
   Caption := ExtractFileName(Application.ExeName);
 end;
 
+procedure TForm2.chkRenderClick(Sender: TObject);
+begin
+  SKIP_RENDER := not chkRender.Checked;
+end;
+
+
+procedure TForm2.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(gLog);
+end;
 
 procedure TForm2.FormShow(Sender: TObject);
 const
@@ -220,6 +240,7 @@ begin
   if ID = -1 then Exit;
   btnRun.Enabled := True;
   btnRunAll.Enabled := True;
+  btnTryFoundSeed.Enabled := True;
   btnStop.Enabled := False;
   btnPause.Enabled := False;
 end;
@@ -262,6 +283,8 @@ begin
   fStopped := False;
 
   btnRun.Enabled := False;
+  btnRunAll.Enabled := False;
+  btnTryFoundSeed.Enabled := False;
   btnStop.Enabled := True;
   btnPause.Enabled := False; //Always disabled for now
   try
@@ -298,6 +321,7 @@ begin
   finally
     btnRun.Enabled := True;
     btnRunAll.Enabled := True;
+    btnTryFoundSeed.Enabled := True;
     btnStop.Enabled := False;
     btnPause.Enabled := False;
   end;
@@ -324,6 +348,7 @@ begin
 
   btnRun.Enabled := False;
   btnRunAll.Enabled := False;
+  btnTryFoundSeed.Enabled := False;
   btnStop.Enabled := True;
   btnPause.Enabled := False; //Always disabled for now
 
@@ -390,6 +415,88 @@ begin
 
   btnRun.Enabled := True;
   btnRunAll.Enabled := True;
+  btnTryFoundSeed.Enabled := True;
+  btnStop.Enabled := False;
+  btnPause.Enabled := False;
+end;
+
+procedure TForm2.btnTryFoundSeedClick(Sender: TObject);
+var
+  T: Cardinal;
+  ID: Integer;
+  Testing_GameTestsClass: TKMRunnerClass;
+  Testing_GameTests: TKMRunnerCommon;
+  resStr: string;
+begin
+  if ListBox1.ItemIndex = -1 then Exit;
+  ID := Integer(ListBox1.Items.Objects[ListBox1.ItemIndex]);
+
+  fStopped := False;
+
+  btnRun.Enabled := False;
+  btnRunAll.Enabled := False;
+  btnTryFoundSeed.Enabled := False;
+  btnStop.Enabled := True;
+  btnPause.Enabled := False;
+
+  moResults.Clear;
+  PageControl1.ActivePage := TabSheet5;
+
+  Testing_GameTestsClass := RunnerList[ID];
+
+  while not fStopped do
+  begin
+    if chkRender.Checked then
+      Testing_GameTests := Testing_GameTestsClass.Create(RenderArea, IsStopped)
+    else
+      Testing_GameTests := Testing_GameTestsClass.Create(nil, IsStopped);
+
+    Testing_GameTests.OnProgress := Testing_GameTestsProgress;
+    Testing_GameTests.OnProgress_Left := Testing_GameTestsProgress_Left;
+    Testing_GameTests.OnProgress_Left2 := Testing_GameTestsProgress_Left2;
+    Testing_GameTests.OnProgress_Left3 := Testing_GameTestsProgress_Left3;
+    Testing_GameTests.OnProgress2 := Testing_GameTestsProgress2;
+    Testing_GameTests.OnProgress3 := Testing_GameTestsProgress3;
+    Testing_GameTests.OnProgress4 := Testing_GameTestsProgress4;
+    Testing_GameTests.OnProgress5 := Testing_GameTestsProgress5;
+
+    try
+      T := GetTickCount;
+      Testing_GameTests.Duration := seDuration.Value;
+      Testing_GameTests.Seed := seSeed.Value;
+      Testing_GameTests.ThrottleRender := chkThrottleRender.Checked;
+      if rgAIType.ItemIndex = 0 then
+        Testing_GameTests.AIType := aitClassic
+      else
+        Testing_GameTests.AIType := aitAdvanced;
+
+      fResults := Testing_GameTests.Run(1);
+
+      case fResults.TestResults[0] of
+        trSuccess: resStr := 'SUCCESS';
+        trFailed: resStr := 'FAILED: ' + fResults.TestMessages[0];
+        trException: resStr := 'EXCEPTION: ' + fResults.TestMessages[0];
+      end;
+
+      moResults.Lines.Append(Format('%s (Seed %d): %s (%d ms)', [Testing_GameTestsClass.ClassName, seSeed.Value, resStr, GetTickCount - T]));
+
+      if fResults.TestResults[0] = trFailed then
+      begin
+        moResults.Lines.Append('Found ETestFailed at seed ' + IntToStr(seSeed.Value));
+        Break;
+      end;
+
+    finally
+      Testing_GameTests.Free;
+    end;
+
+    seSeed.Value := seSeed.Value + 1;
+    Application.ProcessMessages;
+  end;
+
+  btnRun.Enabled := True;
+  btnRunAll.Enabled := True;
+  btnTryFoundSeed.Enabled := True;
   btnStop.Enabled := False;
   btnPause.Enabled := False;
 end;

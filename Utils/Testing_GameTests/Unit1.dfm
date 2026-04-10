@@ -99,6 +99,16 @@ object Form2: TForm2
     Alignment = taRightJustify
     Caption = '      '
   end
+  object btnTryFoundSeed: TButton
+    Left = 8
+    Top = 488
+    Width = 184
+    Height = 38
+    Caption = 'Try Found Seed'
+    Enabled = False
+    TabOrder = 13
+    OnClick = btnTryFoundSeedClick
+  end
   object btnRun: TButton
     Left = 8
     Top = 532
