@@ -48,8 +48,8 @@ begin
       19
     );
   end;
-    gHands[0].AddField(KMPoint(45, 19), ftCorn, 0, False, True);
-    gHands[0].AddField(KMPoint(19, 19), ftCorn, 0, False, True);
+    gHands[0].AddField(KMPoint(46, 18), ftCorn, 0, False, True);
+    gHands[0].AddField(KMPoint(19, 18), ftCorn, 0, False, True);
 //  gHands[0].AddField(KMPoint(45, 21), ftCorn, 0, False, True);
 //  gHands[0].AddField(KMPoint(40, 34), ftCorn, 0, False, True);
 
@@ -86,9 +86,9 @@ begin
           begin
             action := TKMUnitActionWalkTo(warrior.Action);
             distance := KMDistanceAbs(action.WalkFrom, action.WalkTo);
-            //if distance > 10 then
+            if distance > 10 then
 
-              //raise ETestFailed.Create('bug found');
+              raise ETestFailed.Create('bug found');
           end;
         end;
 

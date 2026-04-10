@@ -524,6 +524,11 @@ end;
 
 function TKMUnitGroup.GetMemberLocExact(aIndex: Integer; out aExact: Boolean): TKMPoint;
 begin
+  if aIndex = 88 then
+    if KMSamePoint(fMembers[aIndex].Position, KMPoint(46, 18)) then
+      Sleep(0);
+
+
   //Allow off map positions so GetClosestTile works properly
   Result := GetPositionInGroup2(fOrderLoc.Loc.X, fOrderLoc.Loc.Y,
                                 fOrderLoc.Dir, aIndex, fUnitsPerRow,
@@ -936,6 +941,7 @@ begin
     //(archers should forget about out of range offenders since they won't walk to them like melee)
     if not fightWasOrdered and not InFight then
     begin
+      HungarianReorderMembers;
       ClearOffenders;
       OrderRepeat;
     end;
@@ -986,6 +992,9 @@ begin
     goWalkTo:       begin
                       orderExecuted := True;
                       pushbackLimit := GetPushbackLimit; //Save it to avoid recalc for every unit
+
+                      //HungarianReorderMembers;
+
                       for I := 0 to Count - 1 do
                       begin
                         pushbackLimitReached := fMembersPushbackCommandsCnt > pushbackLimit;
@@ -1008,6 +1017,12 @@ begin
                                  or ((fMembers[I].Action is TKMUnitActionWalkTo) and TKMUnitActionWalkTo(fMembers[I].Action).WasPushed)) then
                           begin
                             P := GetMemberLocExact(I);
+                            // Debug
+                            if I = 88 then
+                              if KMSamePoint(fMembers[I].Position, KMPoint(46, 18)) then
+                                if KMSamePoint(P.Loc, KMPoint(19, 18)) then
+                                  Sleep(0);
+
                             fMembers[I].OrderWalk(P.Loc, P.Exact);
                             fMembersPushbackCommandsCnt := Min(fMembersPushbackCommandsCnt + 1, High(Word));
                           end;

@@ -323,7 +323,7 @@ begin
     else
       gGameApp.Render(False);
 
-    //Sleep(50);
+    Sleep(50);
 
     if Assigned(fOnTick)
       and not fOnTick(I+1) then
