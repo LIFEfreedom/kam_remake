@@ -29,6 +29,8 @@ uses
   Runner_TestBuilding_Plan in 'Runner_TestBuilding_Plan.pas',
   Runner_TestMill_Process in 'Runner_TestMill_Process.pas',
   Runner_TestBakery_Process in 'Runner_TestBakery_Process.pas',
+  Runner_TestSwine_Process in 'Runner_TestSwine_Process.pas',
+  Runner_TestHungarian in 'Runner_TestHungarian.pas',
   Runner_TestFight95 in 'Runner_TestFight95.pas';
 
 {$R *.res}
