@@ -42,6 +42,8 @@ type
     fSelectedInUI: TKMUnitWarrior; // Unit selected by the player in GUI. Should not be saved or affect game logic for MP consistency.
     fTempProtectedRanged: TList<TKMUnitWarrior>; // Ranged enemy units, that should not be pruned from fOffenders.
 
+    fMemberDied: Boolean;
+
     function GetCount: Integer;
     function GetMember(aIndex: Integer): TKMUnitWarrior;
     function GetFlagBearer: TKMUnitWarrior;
@@ -807,59 +809,57 @@ begin
   if (aMember = fSelectedInUI) then
     SelectNearestMember;
 
-
-
   var GapIdx := I;
-  var GapRow := GapIdx div fUnitsPerRow;
-  if GapRow = 0 then  // first row has different indexes
-  begin
-    if GapIdx = 0 then
-    begin
-      var SecondRowGap := fUnitsPerRow + ((fUnitsPerRow + 1) div 2);
-      fMembers.Exchange(GapIdx, SecondRowGap);
-      GapIdx := SecondRowGap;
-    end
-    else if GapIdx <= (fUnitsPerRow + 1) div 2 then
-         begin
-          var SecondRowGap := GapIdx + fUnitsPerRow - 1;
-          fMembers.Exchange(GapIdx, SecondRowGap);
-          GapIdx := SecondRowGap;
-         end
-         else
-         begin
-          fMembers.Exchange(GapIdx, GapIdx + fUnitsPerRow);
-          Inc(GapIdx, fUnitsPerRow);
-         end;
-  end;
-
-  while GapIdx + fUnitsPerRow < fMembers.Count do
-  begin
-    fMembers.Exchange(GapIdx, GapIdx + fUnitsPerRow);
-    Inc(GapIdx, fUnitsPerRow);
-  end;
-
-  var LastRow := (fMembers.Count - 1) div fUnitsPerRow;
-  var LastCol := (fMembers.Count - 1) mod fUnitsPerRow;
-  GapRow := GapIdx div fUnitsPerRow;
-
-  if GapRow < LastRow then
-  begin
-    var GapCol := GapIdx mod fUnitsPerRow;
-
-    while GapCol > LastCol - 1 do
-    begin
-      fMembers.Exchange(GapIdx, GapIdx - 1);
-      Dec(GapIdx);
-      Dec(GapCol);
-    end;
-
-    fMembers.Exchange(GapIdx, fMembers.Count - 1);
-    fMembers.Delete(fMembers.Count - 1);
-  end
-  else
-  begin
+//  var GapRow := GapIdx div fUnitsPerRow;
+//  if GapRow = 0 then  // first row has different indexes
+//  begin
+//    if GapIdx = 0 then
+//    begin
+//      var SecondRowGap := fUnitsPerRow + ((fUnitsPerRow + 1) div 2);
+//      fMembers.Exchange(GapIdx, SecondRowGap);
+//      GapIdx := SecondRowGap;
+//    end
+//    else if GapIdx <= (fUnitsPerRow + 1) div 2 then
+//         begin
+//          var SecondRowGap := GapIdx + fUnitsPerRow - 1;
+//          fMembers.Exchange(GapIdx, SecondRowGap);
+//          GapIdx := SecondRowGap;
+//         end
+//         else
+//         begin
+//          fMembers.Exchange(GapIdx, GapIdx + fUnitsPerRow);
+//          Inc(GapIdx, fUnitsPerRow);
+//         end;
+//  end;
+//
+//  while GapIdx + fUnitsPerRow < fMembers.Count do
+//  begin
+//    fMembers.Exchange(GapIdx, GapIdx + fUnitsPerRow);
+//    Inc(GapIdx, fUnitsPerRow);
+//  end;
+//
+//  var LastRow := (fMembers.Count - 1) div fUnitsPerRow;
+//  var LastCol := (fMembers.Count - 1) mod fUnitsPerRow;
+//  GapRow := GapIdx div fUnitsPerRow;
+//
+//  if GapRow < LastRow then
+//  begin
+//    var GapCol := GapIdx mod fUnitsPerRow;
+//
+//    while GapCol > LastCol - 1 do
+//    begin
+//      fMembers.Exchange(GapIdx, GapIdx - 1);
+//      Dec(GapIdx);
+//      Dec(GapCol);
+//    end;
+//
+//    fMembers.Exchange(GapIdx, fMembers.Count - 1);
+//    fMembers.Delete(fMembers.Count - 1);
+//  end
+//  else
+//  begin
     fMembers.Delete(GapIdx);
-  end;
+//  end;
 
   //Move nearest member to placeholders place
   if I = 0 then
@@ -877,9 +877,11 @@ begin
   if IsDead and Assigned(OnGroupDied) then
     OnGroupDied(Self);
 
+
+  fMemberDied := True;
   //Only repeat the order if we are not in a fight (since bowmen can still take orders when fighting)
-  if not IsDead and CanTakePlayerOrders and not InFight then
-    OrderRepeat(False);
+//  if not IsDead and CanTakePlayerOrders and not InFight then
+//    OrderRepeat(False);
 end;
 
 
@@ -1034,13 +1036,23 @@ var
   U: TKMUnitWarrior;
   pushbackLimit: Word;
   pushbackLimitReached: Boolean;
+  reordered: Boolean;
 begin
   orderExecuted := False;
+  reordered := False;
 
   //1. Check the Order
   //2. Attempt to finish the order
   case fOrder of
-    goNone:         orderExecuted := False;
+    goNone:         begin
+                      orderExecuted := False;
+
+                      if fMemberDied then
+                      begin
+                        fMemberDied := False;
+                        OrderHalt(False);
+                      end;
+                    end;
     goWalkTo:       begin
                       orderExecuted := True;
                       pushbackLimit := GetPushbackLimit; //Save it to avoid recalc for every unit
@@ -1136,6 +1148,12 @@ begin
                           for I := 0 to Count - 1 do
                             if fMembers[I].IsIdle then
                             begin
+                              if not reordered then
+                              begin
+                                 HungarianReorderMembers;
+                                 reordered := true;
+                              end;
+
                               P := GetMemberLocExact(I);
                               fMembers[I].OrderWalk(P.Loc, P.Exact);
                             end;
