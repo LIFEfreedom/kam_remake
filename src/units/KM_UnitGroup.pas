@@ -807,7 +807,59 @@ begin
   if (aMember = fSelectedInUI) then
     SelectNearestMember;
 
-  fMembers.Delete(I);
+
+
+  var GapIdx := I;
+  var GapRow := GapIdx div fUnitsPerRow;
+  if GapRow = 0 then  // first row has different indexes
+  begin
+    if GapIdx = 0 then
+    begin
+      var SecondRowGap := fUnitsPerRow + ((fUnitsPerRow + 1) div 2);
+      fMembers.Exchange(GapIdx, SecondRowGap);
+      GapIdx := SecondRowGap;
+    end
+    else if GapIdx <= (fUnitsPerRow + 1) div 2 then
+         begin
+          var SecondRowGap := GapIdx + fUnitsPerRow - 1;
+          fMembers.Exchange(GapIdx, SecondRowGap);
+          GapIdx := SecondRowGap;
+         end
+         else
+         begin
+          fMembers.Exchange(GapIdx, GapIdx + fUnitsPerRow);
+          Inc(GapIdx, fUnitsPerRow);
+         end;
+  end;
+
+  while GapIdx + fUnitsPerRow < fMembers.Count do
+  begin
+    fMembers.Exchange(GapIdx, GapIdx + fUnitsPerRow);
+    Inc(GapIdx, fUnitsPerRow);
+  end;
+
+  var LastRow := (fMembers.Count - 1) div fUnitsPerRow;
+  var LastCol := (fMembers.Count - 1) mod fUnitsPerRow;
+  GapRow := GapIdx div fUnitsPerRow;
+
+  if GapRow < LastRow then
+  begin
+    var GapCol := GapIdx mod fUnitsPerRow;
+
+    while GapCol > LastCol - 1 do
+    begin
+      fMembers.Exchange(GapIdx, GapIdx - 1);
+      Dec(GapIdx);
+      Dec(GapCol);
+    end;
+
+    fMembers.Exchange(GapIdx, fMembers.Count - 1);
+    fMembers.Delete(fMembers.Count - 1);
+  end
+  else
+  begin
+    fMembers.Delete(GapIdx);
+  end;
 
   //Move nearest member to placeholders place
   if I = 0 then
@@ -1017,12 +1069,6 @@ begin
                                  or ((fMembers[I].Action is TKMUnitActionWalkTo) and TKMUnitActionWalkTo(fMembers[I].Action).WasPushed)) then
                           begin
                             P := GetMemberLocExact(I);
-                            // Debug
-                            if I = 88 then
-                              if KMSamePoint(fMembers[I].Position, KMPoint(46, 18)) then
-                                if KMSamePoint(P.Loc, KMPoint(19, 18)) then
-                                  Sleep(0);
-
                             fMembers[I].OrderWalk(P.Loc, P.Exact);
                             fMembersPushbackCommandsCnt := Min(fMembersPushbackCommandsCnt + 1, High(Word));
                           end;
