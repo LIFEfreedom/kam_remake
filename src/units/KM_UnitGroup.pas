@@ -877,11 +877,10 @@ begin
   if IsDead and Assigned(OnGroupDied) then
     OnGroupDied(Self);
 
-
-  fMemberDied := True;
+  //fMemberDied := True;
   //Only repeat the order if we are not in a fight (since bowmen can still take orders when fighting)
-//  if not IsDead and CanTakePlayerOrders and not InFight then
-//    OrderRepeat(False);
+  if not IsDead and CanTakePlayerOrders and not InFight then
+    OrderRepeat(False);
 end;
 
 
@@ -1047,11 +1046,11 @@ begin
     goNone:         begin
                       orderExecuted := False;
 
-                      if fMemberDied then
-                      begin
-                        fMemberDied := False;
-                        OrderHalt(False);
-                      end;
+//                      if fMemberDied then
+//                      begin
+//                        fMemberDied := False;
+//                        OrderHalt(False);
+//                      end;
                     end;
     goWalkTo:       begin
                       orderExecuted := True;
@@ -1080,7 +1079,16 @@ begin
                             and (fMembers[I].IsIdle
                                  or ((fMembers[I].Action is TKMUnitActionWalkTo) and TKMUnitActionWalkTo(fMembers[I].Action).WasPushed)) then
                           begin
+                            if not reordered then
+                            begin
+                               HungarianReorderMembers;
+                               reordered := true;
+                            end;
+
+
                             P := GetMemberLocExact(I);
+                            if KMSamePoint(P.Loc, KMPoint(45, 19)) and (fMembers[I].UID = 11512047) then
+                              Sleep(0);
                             fMembers[I].OrderWalk(P.Loc, P.Exact);
                             fMembersPushbackCommandsCnt := Min(fMembersPushbackCommandsCnt + 1, High(Word));
                           end;
@@ -1148,12 +1156,6 @@ begin
                           for I := 0 to Count - 1 do
                             if fMembers[I].IsIdle then
                             begin
-                              if not reordered then
-                              begin
-                                 HungarianReorderMembers;
-                                 reordered := true;
-                              end;
-
                               P := GetMemberLocExact(I);
                               fMembers[I].OrderWalk(P.Loc, P.Exact);
                             end;
