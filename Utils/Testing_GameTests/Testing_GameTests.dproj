@@ -9,6 +9,7 @@
         <ProjectGuid>{7F43EA4D-734E-4042-A3E4-DC8B7EF13548}</ProjectGuid>
         <ProjectVersion>19.5</ProjectVersion>
         <TargetedPlatforms>1</TargetedPlatforms>
+        <ProjectName Condition="'$(ProjectName)'==''">Testing_GameTests</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -140,7 +141,21 @@
             <Form>Form2</Form>
         </DCCReference>
         <DCCReference Include="Unit_Runner.pas"/>
-        <DCCReference Include="Runner_Game.pas"/>
+        <DCCReference Include="Runner_TestStone.pas"/>
+        <DCCReference Include="Runner_TestSawmill_Process.pas"/>
+        <DCCReference Include="Runner_TestSawmill_DeliveryIn.pas"/>
+        <DCCReference Include="Runner_TestSawmill_DeliveryOut.pas"/>
+        <DCCReference Include="Runner_TestWoodcutter_Chop.pas"/>
+        <DCCReference Include="Runner_TestWoodcutter_Plant.pas"/>
+        <DCCReference Include="Runner_TestFarm_Plant.pas"/>
+        <DCCReference Include="Runner_TestFarm_Harvest.pas"/>
+        <DCCReference Include="Runner_TestVineyard_Harvest.pas"/>
+        <DCCReference Include="Runner_TestBuilding_Plan.pas"/>
+        <DCCReference Include="Runner_TestMill_Process.pas"/>
+        <DCCReference Include="Runner_TestBakery_Process.pas"/>
+        <DCCReference Include="Runner_TestSwine_Process.pas"/>
+        <DCCReference Include="Runner_TestHungarian.pas"/>
+        <DCCReference Include="Runner_TestFight95.pas"/>
         <None Include="Profiling\AQtimeModule1.aqt"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
@@ -199,6 +214,7 @@
                 <Platform value="Win32">True</Platform>
                 <Platform value="Win64">False</Platform>
             </Platforms>
+            <ModelSupport>False</ModelSupport>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>

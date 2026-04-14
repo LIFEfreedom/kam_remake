@@ -119,6 +119,15 @@ object Form2: TForm2
     TabOrder = 0
     OnClick = btnRunClick
   end
+  object btnTestGetPos: TButton
+    Left = 103
+    Top = 532
+    Width = 89
+    Height = 38
+    Caption = 'Test Pos'
+    TabOrder = 14
+    OnClick = btnTestGetPosClick
+  end
   object btnRunAll: TButton
     Left = 103
     Top = 576
@@ -174,7 +183,12 @@ object Form2: TForm2
         Width = 873
         Height = 597
         Align = alClient
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
         Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 0
       end

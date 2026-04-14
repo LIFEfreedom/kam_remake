@@ -150,6 +150,9 @@ var
 begin
   inherited Create(aUnit, aActionType, False);
 
+  if KMSamePoint(aLocB, KMPoint(45, 19)) and (aUnit.UID = 11512047) then
+    Sleep(0);
+
   if not gTerrain.TileInMapCoords(aLocB.X, aLocB.Y) and (aLocB <> KMPOINT_INVALID_TILE) then
     raise ELocError.Create('Invalid Walk To for '+gRes.Units[aUnit.UnitType].GUIName,aLocB);
 

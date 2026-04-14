@@ -1,4 +1,4 @@
-unit Runner_TestHungarian;
+﻿unit Runner_TestHungarian;
 {$I KaM_Remake.inc}
 interface
 uses
@@ -36,6 +36,7 @@ begin
   fResults.ValueCount := 0;
   DYNAMIC_TERRAIN := False;
   SHOW_UNIT_ROUTES := True;
+  SHOW_GROUP_MEMBERS_POS := True;
   //SHOW_UNIT_ROUTES_STEPS := True;
 
   gGameApp.NewEmptyMap(64, 64);
@@ -45,11 +46,11 @@ begin
     gGame.ActiveInterface.Viewport.Zoom := 0.5;
     gGame.ActiveInterface.Viewport.Position := KMPointF(
       32,
-      19
+      22
     );
   end;
-    gHands[0].AddField(KMPoint(46, 18), ftCorn, 0, False, True);
-    gHands[0].AddField(KMPoint(19, 18), ftCorn, 0, False, True);
+    gHands[0].AddField(KMPoint(35, 19), ftCorn, 0, False, True);
+    gHands[0].AddField(KMPoint(45, 19), ftCorn, 0, False, True);
 //  gHands[0].AddField(KMPoint(45, 21), ftCorn, 0, False, True);
 //  gHands[0].AddField(KMPoint(40, 34), ftCorn, 0, False, True);
 
@@ -86,8 +87,8 @@ begin
           begin
             action := TKMUnitActionWalkTo(warrior.Action);
             distance := KMDistanceAbs(action.WalkFrom, action.WalkTo);
-            if distance > 10 then
-
+            // 11512047
+            if distance > 7 then
               raise ETestFailed.Create('bug found');
           end;
         end;
@@ -106,51 +107,84 @@ begin
 
   SimulateGame;
 
-//  // We want to test that if we merge them, the new tasks (formations)
-//  // will force some unit to walk more than 5 cells distance.
-//  Agents := TKMPointList.Create;
-//  Tasks := TKMPointList.Create;
-//
-//  try
-//    // Populate agents with actual positions from both groups
-//    for I := 0 to Group1.Count - 1 do
-//      Agents.Add(Group1.Members[I].Position);
-//
-//    for I := 0 to Group2.Count - 1 do
-//      Agents.Add(Group2.Members[I].Position);
-//
-//    // Populate tasks - a 30x14 block at Group1's position
-//    for I := 0 to Agents.Count - 1 do
-//    begin
-//      // A simple representation of target formation (30 units per row, from 32,20)
-//      // Note: Group1 is facing South (dirS).
-//      // X = 32 - 15 + (I mod 30)
-//      // Y = 20 - (I div 30)
-//      // This matches roughly what GetMemberLoc does for a 30-width group.
-//      Tasks.Add(KMPoint(32 - 15 + (I mod 30), 20 - (I div 30)));
-//    end;
-//
-//    // Use THungarianOptimisation huIndividual
-//    NewOrder := HungarianMatchPoints(Tasks, Agents, huIndividual);
-//
-//    MaxDist := 0;
-//    for I := 0 to Agents.Count - 1 do
-//    begin
-//      Dist := KMLength(Agents[NewOrder[I]], Tasks[I]);
-//      if Dist > MaxDist then
-//        MaxDist := Dist;
-//    end;
-//
-//    AssertTrue(MaxDist >= 5.0, Format('Expected some unit to walk >= 5 cells, but max dist was %.2f', [MaxDist]));
-//
-//  finally
-//    Agents.Free;
-//    Tasks.Free;
+  gGameApp.StopGame(grSilent);
+end;
+
+type
+  TKMRunnerTestUnitGroupMemberDeath = class(TKMRunnerCommon)
+  protected
+    fGroup: TKMUnitGroup;
+    function OnTickCondition(aTick: Cardinal): Boolean; override;
+    procedure SetUp; override;
+    procedure Execute(aRun: Integer); override;
+  end;
+
+procedure TKMRunnerTestUnitGroupMemberDeath.SetUp;
+begin
+  inherited;
+  fResults.ValueCount := 0;
+  DYNAMIC_TERRAIN := False;
+  SHOW_UNIT_ROUTES := True;
+  SHOW_GROUP_MEMBERS_POS := True;
+  
+  gGameApp.NewEmptyMap(64, 64);
+  
+//  if gGame.ActiveInterface <> nil then
+//  begin
+    gGame.ActiveInterface.Viewport.Zoom := 1;
+    gGame.ActiveInterface.Viewport.Position := KMPointF(32, 18);
 //  end;
 
+  // Group: 10 * 6 = 60 units
+  fGroup := gHands[0].AddUnitGroup(utBowman, KMPoint(32, 20), TKMDirection(dirS), 10, 60);
+end;
+
+function TKMRunnerTestUnitGroupMemberDeath.OnTickCondition(aTick: Cardinal): Boolean;
+var
+  iM: Integer;
+  warrior: TKMUnitWarrior;
+  action: TKMUnitActionWalkTo;
+  distance: Integer;
+begin
+  Result := fGroup.Count > 0;
+  if not Result then Exit;
+
+  // Убиваем каждые 5 тиков юнита в первом ряду (индексы с 1 по 9)
+  if aTick = 20 then
+  begin
+    iM := 1 + KaMRandom(Min(9, fGroup.Count - 1), 'шляпа');
+    if iM < fGroup.Count then
+    begin
+      warrior := fGroup.Members[iM];
+      warrior.Kill(0, False, False);
+    end;
+  end;
+  
+  // Успешность проверяется как отсутствие перехода более чем на 1 клетку
+  for iM := 0 to fGroup.Count - 1 do
+  begin
+    warrior := fGroup.Members[iM];
+    if warrior.Action is TKMUnitActionWalkTo then
+    begin
+      action := TKMUnitActionWalkTo(warrior.Action);
+      distance := KMDistanceAbs(action.WalkFrom, action.WalkTo);
+//      if distance > 1 then
+//        raise ETestFailed.Create(Format('bug found: unit %d moving %d cells', [iM, distance]));
+    end;
+  end;
+
+  if aTick = 150 then
+    Result := False;
+end;
+
+procedure TKMRunnerTestUnitGroupMemberDeath.Execute(aRun: Integer);
+begin
+  SetKaMSeed(aRun + 1);
+  SimulateGame;
   gGameApp.StopGame(grSilent);
 end;
 
 initialization
   RegisterRunner(TKMRunnerTestHungarian);
+  RegisterRunner(TKMRunnerTestUnitGroupMemberDeath);
 end.

@@ -3,7 +3,7 @@ unit Unit1;
 interface
 uses
   Forms, Controls, StdCtrls, Spin, ExtCtrls, Classes, SysUtils, Graphics, Types, Math, Windows,
-  Unit_Runner, KM_Log, KM_RenderControl, KM_GameApp,
+  Unit_Runner, KM_Log, KM_RenderControl, KM_GameApp, KM_CommonUtils, KM_CommonTypes,
   TypInfo,
   {$IFDEF WDC} Vcl.ComCtrls, Vcl.CheckLst {$ELSE} ComCtrls, CheckLst {$ENDIF};
 
@@ -11,6 +11,7 @@ uses
 type
   TForm2 = class(TForm)
     btnRun: TButton;
+    btnTestGetPos: TButton;
     btnTryFoundSeed: TButton;
     seCycles: TSpinEdit;
     Label1: TLabel;
@@ -45,6 +46,7 @@ type
     procedure chkRenderClick(Sender: TObject);
     procedure btnRunClick(Sender: TObject);
     procedure btnTryFoundSeedClick(Sender: TObject);
+    procedure btnTestGetPosClick(Sender: TObject);
     procedure btnRunAllClick(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
@@ -418,6 +420,16 @@ begin
   btnTryFoundSeed.Enabled := True;
   btnStop.Enabled := False;
   btnPause.Enabled := False;
+end;
+
+procedure TForm2.btnTestGetPosClick(Sender: TObject);
+var
+  aTargetCanBeReached: Boolean;
+  //P: KM_Point;
+begin
+//  moResults.Clear;
+//  P := GetPositionInGroup2(32, 20, dirS, 88, 30, 64, 64, False);
+//  moResults.Lines.Append(Format('Test Pos: X:%d Y:%d Reached:%s', [P.X, P.Y, BoolToStr(aTargetCanBeReached, True)]));
 end;
 
 procedure TForm2.btnTryFoundSeedClick(Sender: TObject);
