@@ -30,6 +30,8 @@ type
     procedure EnsureTestMapInstalled;
     // Brings the session all the way up to a running game, with the system under test as a joiner
     procedure StartSession(const aSUTNickname: AnsiString = 'Tester');
+    // Called by StartSession once the host is in the room, for tests that need more people in it
+    procedure AddPlayers; virtual;
     procedure BeforeTick(aTick: Cardinal); override;
     procedure TearDown; override;
   public
@@ -153,11 +155,18 @@ begin
   // and the system under test has to be a joiner, because HandleMessagePlayersList - where both
   // #315 and #316 crash - only runs for lpkJoiner
   fSession.AddHost('Host', 2);
+  AddPlayers;
   fSession.AddSUT(aSUTNickname, 1);
 
   fSession.SelectMap(TEST_MAP_NAME);
   fSession.EveryoneReady;
   fSession.StartGame;
+end;
+
+
+procedure TKMTestMultiplayer.AddPlayers;
+begin
+  //
 end;
 
 

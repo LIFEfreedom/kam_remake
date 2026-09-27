@@ -4,7 +4,7 @@ interface
 uses
   Classes, SysUtils, Math,
   KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_Points,
-  KM_MapTypes, KM_NetTypes, KM_Networking;
+  KM_MapTypes, KM_NetTypes, KM_Networking, KM_GameInputProcess;
 
 
 const
@@ -37,6 +37,11 @@ type
     fLeadTicks: Integer;
     fStallTicks: Integer;
     fNextTickToSend: Cardinal;
+    fHighestSentTick: Cardinal;
+
+    // The one command this participant has issued, if any, and the tick whose pack carries it
+    fCommand: TKMGameInputCommand;
+    fCommandTick: Cardinal;
 
     // Networking calls these without an "if Assigned" guard, so they must all be provided
     procedure NetJoinSucc;
@@ -50,7 +55,7 @@ type
     procedure NetPlay;
     procedure NetMPGameInfoChanged;
 
-    procedure SendEmptyCommands(aTick: Cardinal);
+    procedure SendPack(aTick: Cardinal);
   public
     constructor Create(const aNickname: AnsiString; aDesiredLoc: Integer);
     destructor Destroy; override;
@@ -70,6 +75,9 @@ type
     // Scriptable behaviour
     procedure SetLeadTicks(aTicks: Integer);
     procedure StallFor(aTicks: Integer);
+    procedure Spectate;
+    procedure Reconnect;
+    function OpenMessageScroll(aMessageCount: Integer): Cardinal;
   end;
 
 
@@ -148,7 +156,12 @@ end;
 
 procedure TKMTestMPParticipant.NetJoinFail(const aText: UnicodeString);
 begin
-  fError := 'Join failed: ' + aText;
+  // Mid game the real client never gives up, see TKMGame.GameMPDisconnect. A reconnection the host
+  // turns down for now - it still has our old connection marked alive - is simply tried again
+  if fPlaying then
+    fNet.AttemptReconnection
+  else
+    fError := 'Join failed: ' + aText;
 end;
 
 
@@ -214,9 +227,9 @@ end;
 
 
 // Wire format matches TKMGameInputProcess_Multi.SendCommands: the data type, the target tick and
-// then TKMCommandsPack.Save, which for an empty pack is just its Word count of zero.
+// then TKMCommandsPack.Save, which is a Word count followed by the commands.
 // SendCommands prepends mkCommands itself
-procedure TKMTestMPParticipant.SendEmptyCommands(aTick: Cardinal);
+procedure TKMTestMPParticipant.SendPack(aTick: Cardinal);
 var
   M: TKMemoryStream;
 begin
@@ -224,11 +237,19 @@ begin
   try
     M.Write(Byte(0));   //TKMDataType.kdpCommands
     M.Write(aTick);
-    M.Write(Word(0));   //TKMCommandsPack.fCount
+    if aTick = fCommandTick then
+    begin
+      M.Write(Word(1)); //TKMCommandsPack.fCount
+      SaveCommandToMemoryStream(fCommand, M);
+    end
+    else
+      M.Write(Word(0));
     fNet.SendCommands(M);
   finally
     M.Free;
   end;
+
+  fHighestSentTick := Max(fHighestSentTick, aTick);
 end;
 
 
@@ -239,6 +260,7 @@ begin
   if fNet = nil then Exit;
 
   fNet.UpdateStateIdle;
+  fNet.UpdateState(0); //Runs the reconnection timer
 
   if not fPlaying or not fNet.Connected then Exit;
   if fNet.NetGameState <> lgsGame then Exit;
@@ -261,7 +283,7 @@ begin
 
   while fNextTickToSend <= lastWanted do
   begin
-    SendEmptyCommands(fNextTickToSend);
+    SendPack(fNextTickToSend);
     Inc(fNextTickToSend);
   end;
 end;
@@ -278,6 +300,39 @@ end;
 procedure TKMTestMPParticipant.StallFor(aTicks: Integer);
 begin
   fStallTicks := Max(0, aTicks);
+end;
+
+
+procedure TKMTestMPParticipant.Spectate;
+begin
+  fNet.SelectHand(fNet.MySlotIndex, LOC_SPECTATE);
+end;
+
+
+// Drops our connection and comes back through the same routine the real client runs when it has
+// lost its connection mid game
+procedure TKMTestMPParticipant.Reconnect;
+begin
+  fNet.AttemptReconnection;
+end;
+
+
+// What the real client does when the player opens the message scroll (see
+// TKMGamePlayInterface.MessageLog_Update): the command goes into the first pack not sent yet.
+// That pack is sent right away, so the command is out on the wire when this returns.
+// Returns the tick the command is to be played at
+function TKMTestMPParticipant.OpenMessageScroll(aMessageCount: Integer): Cardinal;
+begin
+  fCommand.Clear;
+  fCommand.CommandType := gicGameMessageListRead;
+  fCommand.HandIndex := fNet.MyRoomSlot.HandIndex;
+  fCommand.IntParams[0] := aMessageCount;
+  fCommandTick := Max(fHighestSentTick + 1, gGameParams.Tick + 2); //Never in the past, MIN_DELAY is 2
+
+  SendPack(fCommandTick);
+  fNextTickToSend := Max(fNextTickToSend, fCommandTick + 1);
+
+  Result := fCommandTick;
 end;
 
 

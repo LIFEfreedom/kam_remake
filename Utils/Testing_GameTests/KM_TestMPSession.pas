@@ -3,7 +3,7 @@ unit KM_TestMPSession;
 interface
 uses
   Classes, SysUtils, Generics.Collections,
-  KM_CommonTypes, KM_Defaults, KM_MapTypes, KM_NetTypes, KM_NetServer, KM_Networking,
+  KM_CommonClasses, KM_CommonTypes, KM_Defaults, KM_MapTypes, KM_NetTypes, KM_NetServer, KM_Networking,
   KM_TestMPParticipant;
 
 
@@ -36,6 +36,10 @@ type
     fSUTError: UnicodeString;
     fSUTGameSeen: Boolean;
     fOnSUTGameCreated: TKMEvent;
+
+    fSUTOnCommands: TStreamIntEvent;
+    fSUTLastPackTick: array [1..MAX_LOBBY_SLOTS] of Cardinal;
+    procedure SUTCommands(aStream: TKMemoryStream; aSenderIndex: ShortInt);
 
     // The SUT's own TKMNetworking is created by TKMGameApp.NetworkInit, which binds only
     // OnStartMap / OnStartSave / OnMPGameInfoChanged / OnAnnounceReturnToLobby / OnDoReturnToLobby.
@@ -83,12 +87,19 @@ type
     procedure HostClearsStartLocations;
     procedure HostBroadcastRoster;
     function SUTPlayersListCount: Cardinal;
+
+    // What the host's "Drop players" button does once the host confirms it
+    procedure HostDropsPlayer(const aNickname: AnsiString);
+
+    // Keeps track of the command packs the system under test takes in, so a test can wait for one
+    procedure WatchSUTCommands;
+    function SUTHasCommandsFrom(const aNickname: AnsiString; aTick: Cardinal): Boolean;
   end;
 
 
 implementation
 uses
-  Forms, KromUtils,
+  Forms, Math, KromUtils,
   KM_CommonUtils, KM_GameApp;
 
 
@@ -103,6 +114,10 @@ end;
 
 destructor TKMTestMPSession.Destroy;
 begin
+  // The game input process we stand in front of dies with the game, and we die here
+  if (gGameApp.Networking <> nil) and (TMethod(gGameApp.Networking.OnCommands).Data = Pointer(Self)) then
+    gGameApp.Networking.OnCommands := nil;
+
   // Participants go first: while any of them is alive the game could still be handed packets.
   // Freeing them is safe for gNetworking now that TKMNetworking.Destroy only clears the global
   // when it still points at itself
@@ -419,6 +434,54 @@ end;
 function TKMTestMPSession.SUTPlayersListCount: Cardinal;
 begin
   Result := SUTNet.PacketsReceived[mkPlayersList];
+end;
+
+
+procedure TKMTestMPSession.HostDropsPlayer(const aNickname: AnsiString);
+var
+  players: TKMByteArray;
+begin
+  SetLength(players, 1);
+  players[0] := fHost.Net.Room.NicknameToLocal(aNickname);
+  fHost.Net.DropPlayers(players);
+end;
+
+
+procedure TKMTestMPSession.WatchSUTCommands;
+begin
+  FillChar(fSUTLastPackTick, SizeOf(fSUTLastPackTick), #0);
+  fSUTOnCommands := SUTNet.OnCommands;
+  SUTNet.OnCommands := SUTCommands;
+end;
+
+
+// Only looks at what arrives - the stream goes on to the game input process as it came.
+// Networking hands over only the packs it accepted, from players it has not dropped
+procedure TKMTestMPSession.SUTCommands(aStream: TKMemoryStream; aSenderIndex: ShortInt);
+var
+  startPos: Int64;
+  dataType: Byte;
+  tick: Cardinal;
+begin
+  startPos := aStream.Position;
+  aStream.Read(dataType, 1);
+  aStream.Read(tick);
+  aStream.Position := startPos;
+
+  if dataType = 0 then //TKMDataType.kdpCommands
+    fSUTLastPackTick[aSenderIndex] := Max(fSUTLastPackTick[aSenderIndex], tick);
+
+  fSUTOnCommands(aStream, aSenderIndex);
+end;
+
+
+// Packs are sent in tick order, so having the pack for a later tick means we have this one too
+function TKMTestMPSession.SUTHasCommandsFrom(const aNickname: AnsiString; aTick: Cardinal): Boolean;
+var
+  slotIndex: Integer;
+begin
+  slotIndex := SUTNet.Room.NicknameToLocal(aNickname);
+  Result := (slotIndex <> -1) and (fSUTLastPackTick[slotIndex] >= aTick);
 end;
 
 
