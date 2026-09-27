@@ -66,6 +66,7 @@ type
     property MapReady: Boolean read fMapReady;
     property Playing: Boolean read fPlaying;
     property Error: UnicodeString read fError;
+    property HighestSentTick: Cardinal read fHighestSentTick;
     function IsHost: Boolean;
 
     procedure Join(const aAddress: string; aPort: Word);
@@ -310,9 +311,10 @@ end;
 
 
 // Drops our connection and comes back through the same routine the real client runs when it has
-// lost its connection mid game
+// lost its connection mid game. Error is cleared, so that it tells how this attempt ends
 procedure TKMTestMPParticipant.Reconnect;
 begin
+  fError := '';
   fNet.AttemptReconnection;
 end;
 

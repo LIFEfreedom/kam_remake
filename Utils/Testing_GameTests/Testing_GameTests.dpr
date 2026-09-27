@@ -25,6 +25,7 @@ uses
   KM_Test_MP_RosterWithoutUs in 'KM_Test_MP_RosterWithoutUs.pas',
   KM_Test_MP_RosterZeroLoc in 'KM_Test_MP_RosterZeroLoc.pas',
   KM_Test_MP_DropConfirmedAfterReconnect in 'KM_Test_MP_DropConfirmedAfterReconnect.pas',
+  KM_Test_MP_DroppedPlayerStaysOut in 'KM_Test_MP_DroppedPlayerStaysOut.pas',
   KM_Test_Archers_GoFar in 'KM_Test_Archers_GoFar.pas',
   KM_Test_Bakery in 'KM_Test_Bakery.pas',
   KM_Test_BuildingPlan in 'KM_Test_BuildingPlan.pas',
